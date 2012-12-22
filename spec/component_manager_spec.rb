@@ -27,6 +27,10 @@ describe Wreckem::ComponentManager do
     @entity1.add @position1
     @entity1.add @shape
     @entity2.add @position2
+    @entity3 = @em.create do |e|
+      e.add Shape.new(:square)
+      e.add Shape.new(:rectangle)
+    end
   end
 
   after do
@@ -45,12 +49,18 @@ describe Wreckem::ComponentManager do
     end
 
     Position.all.size.should == 2
-    Shape.all.size.should == 1
+    Shape.all.size.should == 3
   end
 
   it "should remove a component from an entity" do
     @entity1.delete @position1
     @entity1.to_a.size.should == 1
     @entity1.to_a.first.should == @shape
+  end
+
+  it "should get component from an entity" do
+    Shape.for(@entity1).should == @shape
+    components = Shape.for(@entity3)
+    components.size.should == 2
   end
 end

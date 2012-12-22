@@ -1,6 +1,5 @@
 require 'wreckem/common_methods'
 
-
 module Wreckem
   class Component
     include Wreckem::CommonMethods
@@ -10,8 +9,18 @@ module Wreckem
       generate_uuid
     end
 
+    def delete
+      manager.components.delete_component(self)
+      self
+    end
+
     def entity
-      # implement
+      manager.components.entities_set_for(self.class).each do |e|
+        manager.components.components_set_for(e).each do |c|
+          return e if c == self
+        end
+      end
+      nil
     end
 
     ##
@@ -26,10 +35,8 @@ module Wreckem
       list.length == 1 ? list[0] : list
     end
 
-    def self.all
-      a = []
-      manager.components.all(self) { |c| a << c }
-      a
+    def self.all(&block)
+      manager.components.all(self, &block)
     end
 
     def self.intersects(*cclasses)

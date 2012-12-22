@@ -13,6 +13,13 @@ module Wreckem
     def add(*components)
       manager.components.add(self, *components)
     end
+    alias_method :has, :add
+
+    ##
+    # For boolean components as a nicer looking way of specifying them
+    def is(*cclasses)
+      cclasses.each { |component_class| add(component_class.new) }
+    end
 
     def each
       manager.components.components_set_for(self).each { |c| yield c }

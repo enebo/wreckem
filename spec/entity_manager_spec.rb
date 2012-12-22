@@ -45,4 +45,8 @@ describe Wreckem::EntityManager do
     @em["cpu"].should == @entity2
     @em["processor"].should == @entity2
   end
+
+  it "should be able to retriece entities using raw uuid" do
+    @em[@entity1.uuid].should == @entity1
+  end
 end

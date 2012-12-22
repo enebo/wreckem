@@ -41,11 +41,15 @@ module Wreckem
       entity
     end
 
+    ##
+    # Retrieve entity from entity instance, uuid, or alias in that order
     def [](entity_or_alias)
       if entity_or_alias.respond_to? :uuid
         @entities[entity_or_alias.uuid]
       else
-        @aliases[entity_or_alias]
+        value = @entities[entity_or_alias]
+        value = @aliases[entity_or_alias] unless value
+        value
       end
     end
 

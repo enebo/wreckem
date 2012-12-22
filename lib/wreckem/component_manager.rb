@@ -36,11 +36,21 @@ module Wreckem
       end
     end
 
-    def all(component_class)
-      entities_set_for(component_class).each do |entity|
-        components_set_for(entity).each do |component|
-          yield component if component_class == component.class
+    def all(component_class, &block)
+      if block_given?
+        entities_set_for(component_class).each do |entity|
+          components_set_for(entity).each do |component|
+            yield component if component_class == component.class
+          end
         end
+      else
+        a = []
+        entities_set_for(component_class).each do |entity|
+          components_set_for(entity).each do |component|
+            a << component if component_class == component.class
+          end
+        end
+        a
       end
     end
 

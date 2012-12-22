@@ -39,6 +39,7 @@ module Wreckem
 
     def self.one_for(e)
       self.for(e) { |c| return c }
+      nil
     end
 
     def self.all(&block)

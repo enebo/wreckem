@@ -28,11 +28,17 @@ module Wreckem
     # entity.  If only one instance exists then it returns just the
     # instance; otherwise it will return the instances as a list.
     def self.for(e)
-      list = manager.components.components_set_for(e).find_all do |c|
-        c.class == self
+      if block_given?
+        manager.components.components_set_for(e).each do |c|
+          yield c if c.class == self
+        end
+      else
+        manager.components.components_set_for(e).find_all {|c| c.class == self }
       end
+    end
 
-      list.length == 1 ? list[0] : list
+    def self.one_for(e)
+      self.for(e) { |c| return c }
     end
 
     def self.all(&block)

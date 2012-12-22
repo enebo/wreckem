@@ -59,7 +59,7 @@ describe Wreckem::ComponentManager do
   end
 
   it "should get component from an entity" do
-    Shape.for(@entity1).should == @shape
+    Shape.one_for(@entity1).should == @shape
     components = Shape.for(@entity3)
     components.size.should == 2
   end

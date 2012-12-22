@@ -20,7 +20,7 @@ describe Wreckem::Entity do
     components.size.should == 1
     components[0].class.should == Container
 
-    Container.for(bag).class.should == Container
+    Container.one_for(bag).class.should == Container
   end
 
   it "should create entity using a block" do
@@ -28,6 +28,6 @@ describe Wreckem::Entity do
       e.is(Container)
     end
 
-    Container.for(bag).class.should == Container
+    Container.one_for(bag).class.should == Container
   end
 end

@@ -39,7 +39,7 @@ module Wreckem
     def all(component_class, &block)
       if block_given?
         entities_set_for(component_class).each do |entity|
-          components_set_for(entity).each do |component|
+          components_set_for(entity).dup.each do |component|
             yield component if component_class == component.class
           end
         end

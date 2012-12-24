@@ -2,7 +2,7 @@ require 'wreckem/entity_manager'
 
 describe Wreckem::EntityManager do
   before do
-    @em = Wreckem::EntityManager.instance
+    @em = Wreckem::EntityManager.instance(false)
     @entity1 = @em.create_entity("toy")
     @entity2 = @em.create_entity("cpu", "processor")
   end
@@ -39,5 +39,11 @@ describe Wreckem::EntityManager do
 
   it "should be able to retriece entities using raw uuid" do
     @em[@entity1.uuid].should == @entity1
+  end
+
+  it "should save" do
+    @em.save
+    Wreckem::EntityManager.shutdown
+    @em = Wreckem::EntityManager.instance
   end
 end

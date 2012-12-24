@@ -18,7 +18,7 @@ end
 
 describe Wreckem::Component do
   before do
-    @em = Wreckem::EntityManager.instance
+    @em = Wreckem::EntityManager.instance(false)
     @entity1 = @em.create_entity("toy")
     @entity2 = @em.create_entity("cpu", "processor")
     @position1 = Position.new(10, 20)
@@ -57,6 +57,7 @@ describe Wreckem::Component do
   it "should final entities using entities" do
     entities = Shape.entities
     entities.size.should == 2
+    entities.first.class.should == Wreckem::Entity
   end
 
   it "should remove a component from an entity" do

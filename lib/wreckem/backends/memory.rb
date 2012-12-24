@@ -2,7 +2,7 @@ require 'set'
 
 module Wreckem
   class MemoryStore
-    def initialize
+    def initialize()
       @entities = {}           # {euuid => entity_instance}
       @aliases = {}            # {alias_name => euuid}
       @map_to_aliases = {}     # {euuid => alias_name}
@@ -33,7 +33,6 @@ module Wreckem
     end
 
     def delete_component(component)
-      puts "In delete #{component} #{caller[1]}"
       eset = entities_set_for(component.class.name)
       components_for(component.uuid).each do |entity_uuid|
         components_set_for(entity_uuid).delete component
@@ -99,6 +98,16 @@ module Wreckem
     def load_entities_for_component_class(component_class)
       entities_set_for(component_class.name)
     end
+    
+    def self.restore
+      File.open("db", "rb") { |f| Marshal.load(f.gets(nil)) }
+    rescue
+      new
+    end
+
+    def save
+      File.open("db", "wb") { |f| f.write Marshal.dump(self) }
+    end
 
     ##
     # Store new entity along with its aliases.  It will return the entity
@@ -120,7 +129,6 @@ module Wreckem
       entities_set_for(component.class.name).add entity.uuid
       components_set_for(entity.uuid).add component
     end
-
 
     def map_to_aliases(uuid)
       @map_to_aliases[uuid] ||= []

@@ -8,16 +8,20 @@ module Wreckem
 
     ##
     # Code smell...one global manager instance?
-    def self.instance
-      @manager ||= new
+    def self.instance(load_db=true)
+      @manager ||= new(load_db)
     end
 
     def self.shutdown
       @manager = nil
     end
 
-    def initialize
-      @backend = Wreckem::MemoryStore.new
+    def initialize(load_db)
+      if load_db
+        @backend = Wreckem::MemoryStore.restore
+      else
+        @backend = Wreckem::MemoryStore.new
+      end
     end
 
     ##
@@ -66,15 +70,21 @@ module Wreckem
     end
 
     def entities_for_component(component)
-      @backend.load_entities_of_component(component).map {|uuid| self[uuid] }
+      @backend.load_entities_of_component(uuid_for(component)).map do |uuid|
+        self[uuid]
+      end
     end
 
     def entities_for_component_class(component_class)
-      @backend.load_entities_for_component_class(component_class)
+      @backend.load_entities_for_component_class(component_class).map {|uuid| self[uuid] }
     end
 
     def each(&block)
       @backend.entities &block
+    end
+
+    def save
+      @backend.save
     end
 
     def size

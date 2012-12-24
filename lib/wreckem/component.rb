@@ -13,15 +13,15 @@ module Wreckem
     include Wreckem::CommonMethods
     extend Wreckem::CommonMethods
 
-    def initialize(uuid = nil)
-      @uuid = uuid ? uuid : generate_uuid
+    def initialize()
+      @uuid = generate_uuid
     end
 
     ##
     # Delete this component instance from the game.
     #
     def delete
-      manager.delete_component(uuid)
+      manager.delete_component(self)
       self
     end
 
@@ -29,7 +29,7 @@ module Wreckem
     # Get the (first) entity for this component instance.
     #
     def entity
-      manager.entities_for_component(uuid).first
+      manager.entities_for_component(@uuid).first
     end
 
     ##

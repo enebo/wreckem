@@ -19,15 +19,15 @@ end
 describe Wreckem::Component do
   before do
     @em = Wreckem::EntityManager.instance
-    @entity1 = @em.create("toy")
-    @entity2 = @em.create("cpu", "processor")
+    @entity1 = @em.create_entity("toy")
+    @entity2 = @em.create_entity("cpu", "processor")
     @position1 = Position.new(10, 20)
     @position2 = Position.new(0, 0)
     @shape = Shape.new(:triangle)
     @entity1.add @position1
     @entity1.add @shape
     @entity2.add @position2
-    @entity3 = @em.create do |e|
+    @entity3 = @em.create_entity do |e|
       e.add Shape.new(:square)
       e.add Shape.new(:rectangle)
     end
@@ -61,8 +61,8 @@ describe Wreckem::Component do
 
   it "should remove a component from an entity" do
     @entity1.delete @position1
-    @entity1.to_a.size.should == 1
-    @entity1.to_a.first.should == @shape
+    @entity1.components.size.should == 1
+    @entity1.components.first.should == @shape
   end
 
   it "should get component from an entity" do

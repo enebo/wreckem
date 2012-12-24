@@ -11,7 +11,7 @@ module Wreckem
     end
 
     def add(*components)
-      manager.components.add(self, *components)
+      components.each { |component| manager.add_component(self, component) }
     end
     alias_method :has, :add
 
@@ -22,16 +22,15 @@ module Wreckem
     end
 
     def each
-      manager.components.components_set_for(self).each { |c| yield c }
+      manager.components_of_entity(self).each { |c| yield c }
+    end
+
+    def components
+      manager.components_of_entity(self).to_a
     end
 
     def delete(*components)
-      full_set = manager.components.components_set_for(self)
-      components.each { |component| full_set.delete(component) }
-    end
-
-    def [](component_class)
-      # TODO: implement me
+      components.each { |component| manager.delete_component(component) }
     end
   end
 end

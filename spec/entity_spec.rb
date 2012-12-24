@@ -14,7 +14,7 @@ describe Wreckem::Entity do
   end
 
   it "should add to an entity" do
-    bag = @em.create("bag")
+    bag = @em.create_entity("bag")
     bag.is(Container)
     components = bag.to_a
     components.size.should == 1
@@ -24,7 +24,7 @@ describe Wreckem::Entity do
   end
 
   it "should create entity using a block" do
-    bag = @em.create("bag") do |e|
+    bag = @em.create_entity("bag") do |e|
       e.is(Container)
     end
 

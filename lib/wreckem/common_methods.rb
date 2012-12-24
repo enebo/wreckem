@@ -11,9 +11,5 @@ module Wreckem
     def manager
       Wreckem::EntityManager.instance
     end
-
-    def components
-      manager.components
-    end
   end
 end

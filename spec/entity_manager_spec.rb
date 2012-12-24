@@ -3,8 +3,8 @@ require 'wreckem/entity_manager'
 describe Wreckem::EntityManager do
   before do
     @em = Wreckem::EntityManager.instance
-    @entity1 = @em.create("toy")
-    @entity2 = @em.create("cpu", "processor")
+    @entity1 = @em.create_entity("toy")
+    @entity2 = @em.create_entity("cpu", "processor")
   end
 
   after do
@@ -20,7 +20,7 @@ describe Wreckem::EntityManager do
 
   it "should be able to delete entities" do
     @em.size.should == 2
-    entity = @em.delete(@entity1)
+    entity = @em.delete_entity(@entity1)
     entity.should == @entity1
     @em.size.should == 1
     @em.first.should == @entity2

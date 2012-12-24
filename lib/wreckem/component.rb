@@ -21,7 +21,7 @@ module Wreckem
     # Delete this component instance from the game.
     #
     def delete
-      components.delete_component(self)
+      manager.delete_component(uuid)
       self
     end
 
@@ -29,12 +29,7 @@ module Wreckem
     # Get the (first) entity for this component instance.
     #
     def entity
-      self.class.entities do |e|
-        components.components_set_for(e).each do |c| 
-         return e if c == self 
-        end
-      end
-      nil
+      manager.entities_for_component(uuid).first
     end
 
     ##
@@ -43,9 +38,9 @@ module Wreckem
     # instance; otherwise it will return the instances as a list.
     def self.for(e)
       if block_given?
-        components.components_set_for(e).each { |c| yield c if c.class == self }
+        manager.components_of_entity(e).each { |c| yield c if c.class == self }
       else
-        components.components_set_for(e).find_all {|c| c.class == self }
+        manager.components_of_entity(e).find_all {|c| c.class == self }
       end
     end
 
@@ -64,7 +59,7 @@ module Wreckem
     #   end
     #
     def self.all(&block)
-      manager.components.all(self, &block)
+      manager.components_for_class(self, &block)
     end
 
     ##
@@ -76,9 +71,9 @@ module Wreckem
     #   Player.entities # A systems wants to act on all player entities
     #
     def self.entities
-      return components.entities_set_for(self).to_a unless block_given?
+      return manager.entities_for_component_class(self) unless block_given?
 
-      components.entities_set_for(self).each { |e| yield e }
+      manager.entities_for_component_class(self).each { |e| yield e }
     end
 
     ##
@@ -99,10 +94,9 @@ module Wreckem
     #  many Dieties in the game.  Name is a very common component.
     #
     def self.intersects(*cclasses)
-      components = manager.components
       cclasses = [self] + cclasses
-      components.entities_set_for(self).each do |entity|
-        list = components.components_set_for(entity).inject([]) do |s, c|
+      manager.entities_for_component_class(self).each do |entity_uuid|
+        list = manager.components_of_entity(entity_uuid).inject([]) do |s, c|
           s << c if cclasses.include? c.class
           s
         end

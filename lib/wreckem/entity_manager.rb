@@ -1,11 +1,9 @@
 require 'wreckem/entity'
-require 'wreckem/component_manager'
+require 'wreckem/component'
 require 'wreckem/backends/memory'
 
 module Wreckem
   class EntityManager
-    attr_reader :components
-
     include Enumerable
 
     ##
@@ -19,8 +17,7 @@ module Wreckem
     end
 
     def initialize
-      @components = Wreckem::ComponentManager.new self
-      @backend = Wreckem::MemoryStore.new(@components)
+      @backend = Wreckem::MemoryStore.new
     end
 
     ##
@@ -28,25 +25,52 @@ module Wreckem
     # Note: These aliases are considered to be unique across all
     # entities.
     #
-    def create(*aliases, &block)
-      @backend.store(Entity.new(&block), aliases)
+    def create_entity(*aliases, &block)
+      @backend.store_entity(Entity.new(&block), aliases)
+    end
+
+    ##
+    # Add supplied components to the supplied entity.
+    #
+    def add_component(entity, component)
+      @backend.store_component(entity, component)
+    end
+
+    def components_for_class(component_class, &block)
+      @backend.load_components_from_class(component_class, &block)
+    end
+
+    def components_of_entity(entity)
+      @backend.load_components_of_entity(uuid_for(entity))
     end
 
     ##
     # Retrieve entity from entity instance, uuid, or alias in that order
+    #
     def [](entity_or_alias)
       if entity_or_alias.respond_to? :uuid
-        @backend.load(entity_or_alias.uuid)
+        @backend.load_entity(entity_or_alias.uuid)
       else
-        value = @backend.load(entity_or_alias)
-        value = @backend.load_from_alias(entity_or_alias) unless value
+        value = @backend.load_entity(entity_or_alias)
+        value = @backend.load_entity_from_alias(entity_or_alias) unless value
         value
       end
     end
 
-    def delete(entity)
-      entity = entity.uuid if entity.respond_to? :uuid
-      @backend.delete(entity)
+    def delete_component(component)
+      @backend.delete_component(component)
+    end
+
+    def delete_entity(uuid)
+      @backend.delete_entity(uuid_for(uuid))
+    end
+
+    def entities_for_component(component)
+      @backend.load_entities_of_component(component).map {|uuid| self[uuid] }
+    end
+
+    def entities_for_component_class(component_class)
+      @backend.load_entities_for_component_class(component_class)
     end
 
     def each(&block)
@@ -56,5 +80,10 @@ module Wreckem
     def size
       @backend.entities.size
     end
+
+    def uuid_for(something)
+      something.respond_to?(:uuid) ? something.uuid : something
+    end
+    private :uuid_for
   end
 end

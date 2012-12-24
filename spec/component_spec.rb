@@ -16,7 +16,7 @@ class Shape < Wreckem::Component
   end
 end
 
-describe Wreckem::ComponentManager do
+describe Wreckem::Component do
   before do
     @em = Wreckem::EntityManager.instance
     @entity1 = @em.create("toy")
@@ -42,14 +42,21 @@ describe Wreckem::ComponentManager do
     @entity2.to_a.size.should == 1
   end
 
-  it "should find entities with intersects/all" do
+  it "should find all component instances using all" do
+    Position.all.size.should == 2
+    Shape.all.size.should == 3
+  end
+
+  it "should find entities with intersects" do
     Position.intersects(Shape) do |position, shape|
       position.should == @position1
       shape.should == @shape
     end
+  end
 
-    Position.all.size.should == 2
-    Shape.all.size.should == 3
+  it "should final entities using entities" do
+    entities = Shape.entities
+    entities.size.should == 2
   end
 
   it "should remove a component from an entity" do
@@ -62,5 +69,9 @@ describe Wreckem::ComponentManager do
     Shape.one_for(@entity1).should == @shape
     components = Shape.for(@entity3)
     components.size.should == 2
+  end
+
+  it "should get entity from a component instance" do
+    @shape.entity.should == @entity1
   end
 end

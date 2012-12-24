@@ -5,19 +5,22 @@ module Wreckem
     include Wreckem::CommonMethods
     extend Wreckem::CommonMethods
 
-    def initialize
-      generate_uuid
+    def initialize(uuid = nil)
+      @uuid = uuid ? uuid : generate_uuid
     end
 
     def delete
-      manager.components.delete_component(self)
+      components.delete_component(self)
       self
     end
 
+    ##
+    # Get the entity for this component instance.
+    #
     def entity
-      manager.components.entities_set_for(self.class).each do |e|
-        manager.components.components_set_for(e).each do |c|
-          return e if c == self
+      self.class.entities do |e|
+        components.components_set_for(e).each do |c| 
+         return e if c == self 
         end
       end
       nil
@@ -42,8 +45,31 @@ module Wreckem
       nil
     end
 
+    ##
+    # All component instances for this Component type 
+    #
+    # == Examples
+    #
+    #   PlayerInput.all do |pi|
+    #     pi.command_line
+    #   end
+    #
     def self.all(&block)
       manager.components.all(self, &block)
+    end
+
+    ##
+    # All entities associated with this component.  This is a foundational
+    # method for outer-most access by Systems.
+    #
+    # == Examples
+    #
+    #   Player.entities # A systems wants to act on all player entities
+    #
+    def self.entities
+      return components.entities_set_for(self).to_a unless block_given?
+
+      components.entities_set_for(self).each { |e| yield e }
     end
 
     def self.intersects(*cclasses)

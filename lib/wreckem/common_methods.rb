@@ -5,11 +5,15 @@ module Wreckem
     attr_reader :uuid
 
     def generate_uuid
-      @uuid = java.util.UUID.randomUUID().to_s
+      java.util.UUID.randomUUID().to_s
     end
 
     def manager
       Wreckem::EntityManager.instance
+    end
+
+    def components
+      manager.components
     end
   end
 end

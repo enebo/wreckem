@@ -4,8 +4,8 @@ module Wreckem
   class Entity
     include Enumerable, Wreckem::CommonMethods
 
-    def initialize
-      generate_uuid
+    def initialize(uuid=nil)
+      @uuid =  uuid ? uuid : generate_uuid
 
       yield self if block_given?
     end

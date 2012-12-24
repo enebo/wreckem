@@ -19,8 +19,8 @@ module Wreckem
 
     def initialize
       @entities = {}          # {uuid => entity_instance}
-      @aliases = {}           # {alias_name => entity_instance}
-      @map_to_aliases = {}    # {uuid => alias_name
+      @aliases = {}           # {alias_name => uuid}
+      @map_to_aliases = {}    # {uuid => alias_name}
       @components = Wreckem::ComponentManager.new self
     end
 
@@ -34,7 +34,7 @@ module Wreckem
       @entities[entity.uuid] = entity
 
       aliases.each do |a|
-        @aliases[a] = entity
+        @aliases[a] = entity.uuid
         map_to_aliases(entity.uuid) << a
       end
 
@@ -48,7 +48,10 @@ module Wreckem
         @entities[entity_or_alias.uuid]
       else
         value = @entities[entity_or_alias]
-        value = @aliases[entity_or_alias] unless value
+        unless value
+          value = @aliases[entity_or_alias]   
+          value = @entities[value] if value
+        end
         value
       end
     end

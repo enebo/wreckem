@@ -23,16 +23,7 @@ describe Wreckem::EntityManager do
     entity = @em.delete(@entity1)
     entity.should == @entity1
     @em.size.should == 1
-    @em.first[1].should == @entity2 # first == [uuid => entity]
-  end
-
-  it "should be able to delete entities using aliases" do
-    @em.size.should == 2
-    entity = @em.delete("cpu")
-    entity.should == @entity2
-    @em.size.should == 1
-    @em.first[1].should == @entity1 # first == [uuid => entity]
-    @em["processor"].should be_nil
+    @em.first.should == @entity2
   end
 
   it "should be able to retrieve entities" do

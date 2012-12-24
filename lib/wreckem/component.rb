@@ -1,6 +1,14 @@
 require 'wreckem/common_methods'
 
 module Wreckem
+  ##
+  # Component is the data holder for this EC framework.  This is probably
+  # more heavy-weight than many EC frameworks by standing up an instance
+  # around all data, but hell it is my first implementation and standing
+  # up an instance inherited from a common Component class allows for 
+  # friendly API where I can ask components questions about the game
+  # they live in.
+  #
   class Component
     include Wreckem::CommonMethods
     extend Wreckem::CommonMethods
@@ -9,13 +17,16 @@ module Wreckem
       @uuid = uuid ? uuid : generate_uuid
     end
 
+    ##
+    # Delete this component instance from the game.
+    #
     def delete
       components.delete_component(self)
       self
     end
 
     ##
-    # Get the entity for this component instance.
+    # Get the (first) entity for this component instance.
     #
     def entity
       self.class.entities do |e|
@@ -32,11 +43,9 @@ module Wreckem
     # instance; otherwise it will return the instances as a list.
     def self.for(e)
       if block_given?
-        manager.components.components_set_for(e).each do |c|
-          yield c if c.class == self
-        end
+        components.components_set_for(e).each { |c| yield c if c.class == self }
       else
-        manager.components.components_set_for(e).find_all {|c| c.class == self }
+        components.components_set_for(e).find_all {|c| c.class == self }
       end
     end
 
@@ -72,6 +81,23 @@ module Wreckem
       components.entities_set_for(self).each { |e| yield e }
     end
 
+    ##
+    # Retrieve entity + all intersected component instances which are
+    # present across all entities.  Note that your first component should
+    # be your narrowest search (least number of matching entities) to
+    # reduce the amount of entities you will be scouring.
+    #
+    # == Examples
+    #
+    #  CommandLine.intersects(Diety, Name) do |entity, cli, diety, name|
+    #     puts "#{name.value} is executing #{cli.line}"
+    #     execute(cli.line)
+    #     entity.delete cli  # Done executing command
+    #  end
+    #
+    #  In this example very few people are entering commands and they may be 
+    #  many Dieties in the game.  Name is a very common component.
+    #
     def self.intersects(*cclasses)
       components = manager.components
       cclasses = [self] + cclasses

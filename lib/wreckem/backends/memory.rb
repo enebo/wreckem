@@ -125,7 +125,10 @@ module Wreckem
     end
 
     def store_component(entity, component)
-      components_for(component.uuid).add entity.uuid
+      cuuid = component.uuid
+      raise "Component #{component.class} has no uuid..missing super?" if !cuuid
+
+      components_for(cuuid).add entity.uuid
       entities_set_for(component.class.name).add entity.uuid
       components_set_for(entity.uuid).add component
     end
@@ -148,6 +151,18 @@ module Wreckem
 
     def components_for(component_uuid)
       @components[component_uuid] ||= Set.new
+    end
+
+    def components_set_as_string
+      @components_set_for.inject("@components_set_for = {euuid => [components]}\n") do |s, (euuid, components)|
+        s << "   #{euuid.inspect}=[#{components.map(&:inspect).to_a.join(', ')}]\n"
+      end
+    end
+
+    def components_as_string
+      @components.inject("@components = {cuuid => [euuids]\n") do |s, (cuuid, euuids)|
+        s << "   #{cuuid.inspect}=[#{euuids.map(&:inspect).to_a.join(', ')}]\n"
+      end
     end
   end
 end

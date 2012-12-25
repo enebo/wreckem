@@ -79,6 +79,12 @@ module Wreckem
       @backend.load_entities_for_component_class(component_class).map {|uuid| self[uuid] }
     end
 
+    def entity_as_string(entity)
+      entity.components.inject("#{entity.uuid.inspect}\n") do |s, component|
+        s << "    #{component.inspect}\n"
+      end
+    end
+
     def each(&block)
       @backend.entities &block
     end

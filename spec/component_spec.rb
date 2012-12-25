@@ -4,6 +4,7 @@ class Position < Wreckem::Component
   attr_accessor :x, :y
 
   def initialize(x, y)
+    super()
     @x, @y = x, y
   end
 end
@@ -12,6 +13,7 @@ class Shape < Wreckem::Component
   attr_accessor :kind
 
   def initialize(kind)
+    super()
     @kind = kind
   end
 end

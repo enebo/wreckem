@@ -54,7 +54,7 @@ module Wreckem
     #
     def load_components_from_class(component_class)
       if block_given?
-        entities_set_for(component_class.name).each do |entity_uuid|
+        entities_set_for(component_class.name).dup.each do |entity_uuid|
           components_set_for(entity_uuid).dup.each do |component|
             yield component if component_class == component.class
           end

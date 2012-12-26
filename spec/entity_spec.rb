@@ -38,4 +38,12 @@ describe Wreckem::Entity do
 
     Container.one_for(bag).class.should == Container
   end
+
+  it "should know if it contains components with is and has" do
+    bag = @em.create_entity("bag")
+    bag.is(Container)
+
+    bag.is?(Container).should_not be_nil
+    bag.has?(Container).should_not be_nil
+  end
 end

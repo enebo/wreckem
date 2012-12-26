@@ -21,6 +21,11 @@ module Wreckem
       cclasses.each { |component_class| add(component_class.new) }
     end
 
+    def is?(component_class)
+      component_class.one_for(self)
+    end
+    alias_method :has?, :is?
+
     def each
       manager.components_of_entity(self).each { |c| yield c }
     end

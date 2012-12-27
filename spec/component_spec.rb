@@ -50,7 +50,9 @@ describe Wreckem::Component do
   end
 
   it "should find entities with intersects" do
-    Position.intersects(Shape) do |position, shape|
+    Position.intersects(Shape) do |entity, position, shape|
+      puts "ENTITY: #{@em.entity_as_string(entity)}"
+      entity.should == @entity1
       position.should == @position1
       shape.should == @shape
     end
@@ -76,5 +78,12 @@ describe Wreckem::Component do
 
   it "should get entity from a component instance" do
     @shape.entity.should == @entity1
+  end
+
+  it "should create new components with define" do
+    Foo = Wreckem::Component.define
+    @entity1.is Foo
+
+    @entity1.is?(Foo).should_not be_nil
   end
 end

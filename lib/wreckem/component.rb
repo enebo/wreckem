@@ -102,10 +102,15 @@ module Wreckem
           s
         end
 
-        list = cclasses.map { |c| hash[c] }
+        list = cclasses.map { |c| hash[c] }.compact
 
-        yield entity, *list
+        yield entity, *list if list.size == cclasses.size
       end
+    end
+
+    def self.define(type=nil)
+      raise "Types not supported yet for define" if type
+      Class.new(Component)
     end
   end
 end

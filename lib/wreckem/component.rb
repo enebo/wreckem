@@ -109,8 +109,17 @@ module Wreckem
     end
 
     def self.define(type=nil)
-      raise "Types not supported yet for define" if type
-      Class.new(Component)
+      return Class.new(Component) unless type
+
+      Class.new(Component) do
+        attr_reader :value, :type
+
+        def initialize(value)
+          super()
+          @type = type
+          @value = value
+        end
+      end
     end
   end
 end

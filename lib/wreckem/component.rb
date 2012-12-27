@@ -33,6 +33,13 @@ module Wreckem
     end
 
     ##
+    # Get unboxed string value instead of the containers 
+    #
+    def to_s
+      respond_to?(:value) ? value.to_s : super
+    end
+
+    ##
     # Get all components instances of this type from the specified
     # entity.  If only one instance exists then it returns just the
     # instance; otherwise it will return the instances as a list.

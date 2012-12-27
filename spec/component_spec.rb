@@ -93,4 +93,11 @@ describe Wreckem::Component do
     @entity1.one(Bar).value = 6
     @entity1.one(Bar).value.should == 6
   end
+
+  it "should to_s the boxed component value" do
+    Num = Wreckem::Component.define(:int)
+
+    @entity1.has Num.new(5)
+    @entity1.one(Num).to_s.should == "5"
+  end
 end

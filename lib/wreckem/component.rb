@@ -96,14 +96,15 @@ module Wreckem
     def self.intersects(*cclasses)
       cclasses = [self] + cclasses
       manager.entities_for_component_class(self).each do |entity_uuid|
-        list = manager.components_of_entity(entity_uuid).inject([]) do |s, c|
-          s << c if cclasses.include? c.class
+        entity = manager[entity_uuid]
+        hash = manager.components_of_entity(entity_uuid).inject({}) do |s, c|
+          s[c.class] = c if cclasses.include? c.class
           s
         end
 
-        if list.length == cclasses.length 
-          yield cclasses.length == 1 ?  list.first : list 
-        end
+        list = cclasses.map { |c| hash[c] }
+
+        yield entity, *list
       end
     end
   end

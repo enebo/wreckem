@@ -4,6 +4,15 @@ require 'wreckem/component'
 class Container < Wreckem::Component
 end
 
+class HitPoints < Wreckem::Component
+  attr_reader :points
+
+  def initialize(points)
+    super()
+    @points = points
+  end
+end
+
 describe Wreckem::Entity do
   before do
     @em = Wreckem::EntityManager.instance(false)
@@ -45,5 +54,12 @@ describe Wreckem::Entity do
 
     bag.is?(Container).should_not be_nil
     bag.has?(Container).should_not be_nil
+  end
+
+  it "should access one component using one" do
+    bag = @em.create_entity
+    bag.has HitPoints.new(9001)
+
+    bag.one(HitPoints).points.should == 9001
   end
 end

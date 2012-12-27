@@ -26,6 +26,10 @@ module Wreckem
     end
     alias_method :has?, :is?
 
+    def one(component_class)
+      component_class.one_for(self)
+    end
+
     def each
       manager.components_of_entity(self).each { |c| yield c }
     end

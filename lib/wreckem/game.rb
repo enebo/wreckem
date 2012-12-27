@@ -3,20 +3,30 @@ require 'wreckem/common_methods'
 module Wreckem
   class Game
     include Wreckem::CommonMethods
-    attr_reader :systems
+    attr_reader :systems, :async_systems
 
     def initialize
-      @systems = []
+      @systems, @async_systems = [], []
     end
 
     def run
       register_entities
       register_systems
+      register_async_systems
+
+      async_systems.each do |system|
+        Thread.new do
+          loop do
+            system.process
+          end
+        end
+      end
 
       loop do
         systems.each do |system|
           time(system.class.name) { system.process }
         end
+        sleep 0.25
       end
     end
 

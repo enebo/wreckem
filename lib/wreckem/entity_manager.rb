@@ -52,7 +52,9 @@ module Wreckem
     # Retrieve entity from entity instance, uuid, or alias in that order
     #
     def [](entity_or_alias)
-      if entity_or_alias.respond_to? :uuid
+      if entity_or_alias.respond_to?(:ref)
+        @backend.load_entity(entity_or_alias.ref)
+      elsif entity_or_alias.respond_to? :uuid
         @backend.load_entity(entity_or_alias.uuid)
       else
         value = @backend.load_entity(entity_or_alias)

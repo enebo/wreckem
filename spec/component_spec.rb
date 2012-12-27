@@ -88,6 +88,9 @@ describe Wreckem::Component do
     Bar = Wreckem::Component.define(:int)
     @entity1.has Bar.new(5)
 
+    @entity1.one(Bar).type.should == :int
     @entity1.one(Bar).value.should == 5
+    @entity1.one(Bar).value = 6
+    @entity1.one(Bar).value.should == 6
   end
 end

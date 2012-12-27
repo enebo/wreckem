@@ -108,16 +108,19 @@ module Wreckem
       end
     end
 
-    def self.define(type=nil)
-      return Class.new(Component) unless type
+    def self.define(data_type=nil)
+      return Class.new(Component) unless data_type
 
       Class.new(Component) do
-        attr_reader :value, :type
+        attr_accessor :value 
 
         def initialize(value)
           super()
-          @type = type
           @value = value
+        end
+
+        define_method(:type) do
+          data_type
         end
       end
     end

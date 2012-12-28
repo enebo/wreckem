@@ -22,12 +22,16 @@ module Wreckem
     end
 
     def is?(component_class)
-      component_class.one_for(self)
+      !!component_class.one(self)
     end
     alias_method :has?, :is?
 
     def one(component_class)
-      component_class.one_for(self)
+      component_class.one(self)
+    end
+
+    def many(component_class)
+      component_class.many(self)
     end
 
     def each

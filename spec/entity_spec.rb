@@ -1,17 +1,9 @@
 require 'wreckem/entity_manager'
 require 'wreckem/component'
 
-class Container < Wreckem::Component
-end
-
-class HitPoints < Wreckem::Component
-  attr_reader :points
-
-  def initialize(points)
-    super()
-    @points = points
-  end
-end
+Container = Wreckem::Component.define
+HitPoints = Wreckem::Component.define_as_int
+Wound = Wreckem::Component.define_as_int
 
 describe Wreckem::Entity do
   before do
@@ -29,7 +21,7 @@ describe Wreckem::Entity do
     components.size.should == 1
     components[0].class.should == Container
 
-    Container.one_for(bag).class.should == Container
+    Container.one(bag).class.should == Container
   end
 
   it "should add to an entity using has" do
@@ -45,7 +37,7 @@ describe Wreckem::Entity do
       e.is(Container)
     end
 
-    Container.one_for(bag).class.should == Container
+    bag.one(Container).class.should == Container
   end
 
   it "should know if it contains components with is and has" do
@@ -60,6 +52,16 @@ describe Wreckem::Entity do
     bag = @em.create_entity
     bag.has HitPoints.new(9001)
 
-    bag.one(HitPoints).points.should == 9001
+    bag.one(HitPoints).value.should == 9001
+  end
+
+  it "should access all same-type components using many" do
+    player = @em.create_entity do |p|
+      p.has Wound.new(5)
+      p.has Wound.new(4)
+      p.has Wound.new(3)
+    end
+
+    player.many(Wound).size.should == 3
   end
 end

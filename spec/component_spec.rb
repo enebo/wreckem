@@ -70,9 +70,8 @@ describe Wreckem::Component do
   end
 
   it "should get component from an entity" do
-    Shape.one_for(@entity1).should == @shape
-    components = Shape.for(@entity3)
-    components.size.should == 2
+    Shape.one(@entity1).should == @shape
+    Shape.many(@entity3).size.should == 2
   end
 
   it "should get entity from a component instance" do

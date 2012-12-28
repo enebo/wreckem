@@ -36,17 +36,17 @@ module Wreckem
     # Get all components instances of this type from the specified
     # entity.  If only one instance exists then it returns just the
     # instance; otherwise it will return the instances as a list.
-    def self.for(e)
-      if block_given?
-        manager.components_of_entity(e).each { |c| yield c if c.class == self }
-      else
-        manager.components_of_entity(e).find_all {|c| c.class == self }
-      end
+    #
+    def self.many(e)
+      manager.components_of_entity(e).find_all {|c| c.class == self }
     end
 
-    def self.one_for(e)
-      self.for(e) { |c| return c }
-      nil
+    ##
+    # Get the first/single component of this type for the supplied
+    # entity.
+    #
+    def self.one(e)
+      many(e).first
     end
 
     ##

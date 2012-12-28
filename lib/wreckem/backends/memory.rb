@@ -71,7 +71,7 @@ module Wreckem
     end
 
     def load_components_of_entity(entity_uuid)
-      components_set_for(entity_uuid)
+      components_set_for(entity_uuid).to_a
     end
 
     ##

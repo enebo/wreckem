@@ -29,8 +29,8 @@ module Wreckem
       @backend.store_component(entity, component)
     end
 
-    def components_for_class(component_class, &block)
-      @backend.load_components_from_class(component_class, &block)
+    def components_for_class(component_class)
+      @backend.load_components_from_class(component_class)
     end
 
     def components_of_entity(entity)

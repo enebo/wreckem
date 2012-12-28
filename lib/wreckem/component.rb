@@ -54,12 +54,10 @@ module Wreckem
     #
     # == Examples
     #
-    #   PlayerInput.all do |pi|
-    #     pi.command_line
-    #   end
+    #   PlayerInput.all
     #
-    def self.all(&block)
-      manager.components_for_class(self, &block)
+    def self.all
+      manager.components_for_class(self)
     end
 
     ##

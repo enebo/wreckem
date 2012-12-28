@@ -6,22 +6,11 @@ module Wreckem
   class EntityManager
     include Enumerable
 
-    ##
-    # Code smell...one global manager instance?
-    def self.instance(load_db=true)
-      @manager ||= new(load_db)
-    end
-
-    def self.shutdown
-      @manager = nil
-    end
-
-    def initialize(load_db)
-      if load_db
-        @backend = Wreckem::MemoryStore.restore
-      else
-        @backend = Wreckem::MemoryStore.new
-      end
+    def initialize(backend=Wreckem::MemoryStore.new)
+      Wreckem::Entity.manager = self
+      Wreckem::Component.manager = self
+      
+      @backend = backend
     end
 
     ##

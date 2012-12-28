@@ -20,7 +20,7 @@ end
 
 describe Wreckem::Component do
   before do
-    @em = Wreckem::EntityManager.instance(false)
+    @em = Wreckem::EntityManager.new
     @entity1 = @em.create_entity("toy")
     @entity2 = @em.create_entity("cpu", "processor")
     @position1 = Position.new(10, 20)
@@ -33,10 +33,6 @@ describe Wreckem::Component do
       e.add Shape.new(:square)
       e.add Shape.new(:rectangle)
     end
-  end
-
-  after do
-    Wreckem::EntityManager.shutdown
   end
 
   it "should add components to entities" do

@@ -21,7 +21,7 @@ module Wreckem
     # Delete this component instance from the game.
     #
     def delete
-      manager.delete_component(self)
+      self.class.manager.delete_component(self)
       self
     end
 
@@ -29,7 +29,7 @@ module Wreckem
     # Get the (first) entity for this component instance.
     #
     def entity
-      manager.entities_for_component(@uuid).first
+      self.class.manager.entities_for_component(@uuid).first
     end
 
     ##
@@ -178,6 +178,14 @@ module Wreckem
 
         define_method(:type) { data_type }
       end
+    end
+
+    def self.manager=(manager)
+      @@manager = manager
+    end
+
+    def self.manager
+      @@manager
     end
   end
 end

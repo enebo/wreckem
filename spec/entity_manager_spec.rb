@@ -2,13 +2,9 @@ require 'wreckem/entity_manager'
 
 describe Wreckem::EntityManager do
   before do
-    @em = Wreckem::EntityManager.instance(false)
+    @em = Wreckem::EntityManager.new
     @entity1 = @em.create_entity("toy")
     @entity2 = @em.create_entity("cpu", "processor")
-  end
-
-  after do
-    Wreckem::EntityManager.shutdown
   end
 
   it "should create new entities" do
@@ -41,11 +37,11 @@ describe Wreckem::EntityManager do
     @em[@entity1.uuid].should == @entity1
   end
 
-  it "should save" do
-    @em.save
-    Wreckem::EntityManager.shutdown
-    @em = Wreckem::EntityManager.instance
-  end
+  # it "should save" do
+  #   @em.save
+  #   Wreckem::EntityManager.shutdown
+  #   @em = Wreckem::EntityManager.instance
+  # end
 
   it "should look up entities using ref components" do
     Ref = Wreckem::Component.define_as_ref

@@ -45,5 +45,17 @@ module Wreckem
     def delete(*components)
       components.each { |component| manager.delete_component(component) }
     end
+
+    def manager
+      self.class.manager
+    end
+
+    def self.manager=(manager)
+      @@manager = manager
+    end
+
+    def self.manager
+      @@manager
+    end
   end
 end

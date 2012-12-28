@@ -7,11 +7,7 @@ Wound = Wreckem::Component.define_as_int
 
 describe Wreckem::Entity do
   before do
-    @em = Wreckem::EntityManager.instance(false)
-  end
-
-  after do
-    Wreckem::EntityManager
+    @em = Wreckem::EntityManager.new
   end
 
   it "should add to an entity using is" do

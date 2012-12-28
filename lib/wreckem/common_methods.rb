@@ -7,9 +7,5 @@ module Wreckem
     def generate_uuid
       java.util.UUID.randomUUID().to_s
     end
-
-    def manager
-      Wreckem::EntityManager.instance
-    end
   end
 end

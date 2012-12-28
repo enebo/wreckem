@@ -85,7 +85,7 @@ describe Wreckem::Component do
 
     @entity1.is?(Foo).should_not be_nil
 
-    Bar = Wreckem::Component.define(:int)
+    Bar = Wreckem::Component.define_as_int
     @entity1.has Bar.new(5)
 
     @entity1.one(Bar).type.should == :int
@@ -95,14 +95,14 @@ describe Wreckem::Component do
   end
 
   it "should to_s the boxed component value" do
-    Num = Wreckem::Component.define(:int)
+    Num = Wreckem::Component.define_as_int
 
     @entity1.has Num.new(5)
     @entity1.one(Num).to_s.should == "5"
   end
 
   it "should allow same? to do equality comparison" do
-    Fun = Wreckem::Component.define(:ref)
+    Fun = Wreckem::Component.define_as_ref
 
     fun = Fun.new(@entity1)
 
@@ -110,18 +110,20 @@ describe Wreckem::Component do
   end
 
   it "should extract out matched types of comp.new(comp)" do
-    Gun = Wreckem::Component.define(:ref)
-    Hun = Wreckem::Component.define(:ref)
-    Iun = Wreckem::Component.define(:int)
+    Gun = Wreckem::Component.define_as_ref
+    Hun = Wreckem::Component.define_as_ref
+    Iun = Wreckem::Component.define_as_int
 
     gun = Gun.new(@entity1)
     hun = Hun.new(gun)
+    iun = Iun.new(5)
 
     gun.same?(hun).should == true
+    hun.same?(iun).should == false
   end
 
   it "should should all all comp(:ref) to accept entities" do
-    Jun = Wreckem::Component.define(:int)
+    Jun = Wreckem::Component.define_as_int
     
     Jun.new(@entity1).value.should == @entity1
 

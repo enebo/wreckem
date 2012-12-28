@@ -48,7 +48,7 @@ describe Wreckem::EntityManager do
   end
 
   it "should look up entities using ref components" do
-    Ref = Wreckem::Component.define(:ref)
+    Ref = Wreckem::Component.define_as_ref
     ref = Ref.new(@entity1.uuid)
     @em[ref].should == @entity1
   end

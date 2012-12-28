@@ -108,21 +108,56 @@ module Wreckem
       end
     end
 
-    def self.define(data_type=nil)
-      return Class.new(Component) unless data_type
+    ##
+    # Define a content-less component (for pure aspect identification)
+    #
+    def self.define
+      define_as_type(:aspect)
+    end
 
+    def self.define_as_bool
+      define_as_type(:bool)
+    end
+
+    def self.define_as_int
+      define_as_type(:int)
+    end
+
+    def self.define_as_ref
+      define_as_type(:ref)
+    end
+
+    def self.define_as_string
+      define_as_type(:string)
+    end
+
+    def self.define_as_text
+      define_as_test(:text)
+    end
+
+    def self.define_as_type(data_type)
       Class.new(Component) do
-        attr_accessor :value 
+        if data_type == :aspect
+          def initialize
+            super()
+          end
 
-        def initialize(value)
-          super()
+          def value
+            true
+          end
+        else
+          attr_accessor :value 
 
-          if value.kind_of?(Wreckem::Component) && value.respond_to?(:type) && value.type == type
-            @value = value.value
-          elsif value.kind_of?(Wreckem::Entity) && type == :ref
-            @value = value.uuid
-          else
-            @value = value
+          def initialize(value)
+            super()
+
+            if value.kind_of?(Wreckem::Component) && value.type == type
+              @value = value.value
+            elsif value.kind_of?(Wreckem::Entity) && type == :ref
+              @value = value.uuid
+            else
+              @value = value
+            end
           end
         end
 
@@ -138,13 +173,10 @@ module Wreckem
           @value.to_s
         end
 
-        define_method(:type) do
-          data_type
-        end
+        # Special reference method for things to key off of.
+        alias_method :ref, :value if data_type == :ref
 
-        if data_type == :ref
-          alias_method :ref, :value
-        end
+        define_method(:type) { data_type }
       end
     end
   end

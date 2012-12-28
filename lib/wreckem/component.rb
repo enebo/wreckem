@@ -116,7 +116,22 @@ module Wreckem
 
         def initialize(value)
           super()
-          @value = value
+
+          if value.kind_of?(Wreckem::Component) && value.respond_to?(:type) && value.type == type
+            @value = value.value
+          elsif value.kind_of?(Wreckem::Entity) && type == :ref
+            @value = value.uuid
+          else
+            @value = value
+          end
+        end
+
+        def same?(other)
+          if other.kind_of?(Wreckem::Component)
+            self.value == other.value
+          else
+            value == other
+          end
         end
 
         def to_s

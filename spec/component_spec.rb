@@ -100,4 +100,30 @@ describe Wreckem::Component do
     @entity1.has Num.new(5)
     @entity1.one(Num).to_s.should == "5"
   end
+
+  it "should allow same? to do equality comparison" do
+    Fun = Wreckem::Component.define(:ref)
+
+    fun = Fun.new(@entity1)
+
+    fun.same?(@entity1.uuid).should == true
+  end
+
+  it "should extract out matched types of comp.new(comp)" do
+    Gun = Wreckem::Component.define(:ref)
+    Hun = Wreckem::Component.define(:ref)
+    Iun = Wreckem::Component.define(:int)
+
+    gun = Gun.new(@entity1)
+    hun = Hun.new(gun)
+
+    gun.same?(hun).should == true
+  end
+
+  it "should should all all comp(:ref) to accept entities" do
+    Jun = Wreckem::Component.define(:int)
+    
+    Jun.new(@entity1).value.should == @entity1
+
+  end
 end

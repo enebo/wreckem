@@ -69,7 +69,7 @@ module Wreckem
 
     def store_entity(entity, aliases)
       time_and_count(:store_entity) do
-        @backend.store_entity(entity, alias)
+        @backend.store_entity(entity, aliases)
       end
     end
 
@@ -81,11 +81,13 @@ module Wreckem
 
     def time_and_count(method)
       start = Time.now
-      yield
+      ret = yield
       time_spent = Time.now - start
       
       update_count(method)
       update_time(method, time_spent)
+      
+      ret
     end
 
     def update_count(method)

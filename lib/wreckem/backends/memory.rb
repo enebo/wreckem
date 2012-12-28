@@ -41,33 +41,23 @@ module Wreckem
     end
 
     ##
-    # Return all entities or yield to all entities
+    # Return all entities
     #
     def entities
-      return @entities.values unless block_given?
-
-      @entities.each { |uuid, entity| yield entity }
+      @entities.values
     end
 
     ##
     # Load component from class
     #
     def load_components_from_class(component_class)
-      if block_given?
-        entities_set_for(component_class.name).dup.each do |entity_uuid|
-          components_set_for(entity_uuid).dup.each do |component|
-            yield component if component_class == component.class
-          end
+      a = []
+      entities_set_for(component_class.name).each do |entity_uuid|
+        components_set_for(entity_uuid).each do |component|
+          a << component if component_class == component.class
         end
-      else
-        a = []
-        entities_set_for(component_class.name).each do |entity_uuid|
-          components_set_for(entity_uuid).each do |component|
-            a << component if component_class == component.class
-          end
-        end
-        a
       end
+      a
     end
 
     def load_components_of_entity(entity_uuid)

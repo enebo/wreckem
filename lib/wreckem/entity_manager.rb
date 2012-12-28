@@ -76,8 +76,8 @@ module Wreckem
       end
     end
 
-    def each(&block)
-      @backend.entities &block
+    def each
+      @backend.entities.each { |e| yield e }
     end
 
     def save

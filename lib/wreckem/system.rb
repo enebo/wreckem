@@ -9,5 +9,9 @@ module Wreckem
     def initialize(game)
       @game = game
     end
+
+    def manager
+      game.manager
+    end
   end
 end

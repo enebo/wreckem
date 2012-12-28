@@ -3,10 +3,15 @@ require 'wreckem/common_methods'
 module Wreckem
   class Game
     include Wreckem::CommonMethods
-    attr_reader :systems, :async_systems
+    attr_reader :systems, :async_systems, :manager
 
-    def initialize
+    def initialize(backend=nil)
       @systems, @async_systems = [], []
+      if backend
+        @manager = Wreckem::EntityManager.new(backend)
+      else
+        @manager = Wreckem::EntityManager.new
+      end
     end
 
     def run

@@ -70,6 +70,18 @@ describe Wreckem::Entity do
     HitPoints.all.find { |hp| hp == h }.should == h
   end
 
+  it "nested transactions in same thread should merge" do
+    @em.transaction do
+      h = HitPoints.new(6)
+      player = @em.create_entity do |e|
+        id = e.id
+        e.has(h)
+        @em[id].should == nil
+        HitPoints.all.find { |hp| hp == h }.should == nil
+      end
+    end
+  end
+
   it "should know if it contains components with is and has" do
     bag = @em.create_entity("bag")
     bag.is(Container)

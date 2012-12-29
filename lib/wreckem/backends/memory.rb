@@ -168,6 +168,8 @@ module Wreckem
     end
 
     def transaction(&block)
+      return yield if @in_transation
+
       @in_transaction = true
       yield
       last = nil

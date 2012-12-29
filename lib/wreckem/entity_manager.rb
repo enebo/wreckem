@@ -35,6 +35,8 @@ module Wreckem
     # Add supplied components to the supplied entity.
     #
     def add_component(entity, component)
+      raise ArgumentError.new("nil component?") unless component
+
       @backend.store_component(entity, component)
     end
 

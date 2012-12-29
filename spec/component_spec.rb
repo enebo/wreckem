@@ -35,6 +35,10 @@ describe Wreckem::Component do
     end
   end
 
+  it "should not be able to add nil as a component" do
+    expect { @entity1.has(nil) }.to raise_error(ArgumentError)
+  end
+
   it "should add components to entities" do
     @entity1.to_a.size.should == 2
     @entity2.to_a.size.should == 1

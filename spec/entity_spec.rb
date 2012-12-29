@@ -54,6 +54,21 @@ describe Wreckem::Entity do
     HitPoints.all.find { |hp| hp == h }.should == h
   end
 
+  it "should execute in an explicit transaction block" do
+    h = HitPoints.new(6)
+    player = nil
+    id = nil
+    @em.transaction do
+      player = @em.create_entity
+      id = player.id
+      player.has(h)
+      @em[player.id].should == nil
+      HitPoints.all.find { |hp| hp == h }.should == nil
+    end
+
+    @em[id].should == player
+    HitPoints.all.find { |hp| hp == h }.should == h
+  end
 
   it "should know if it contains components with is and has" do
     bag = @em.create_entity("bag")

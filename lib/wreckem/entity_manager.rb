@@ -19,9 +19,14 @@ module Wreckem
     # entities.
     #
     def create_entity(*aliases)
-      transaction do
+      if block_given?
+        transaction do
+          entity = Entity.new_protected(@backend.generate_id)
+          yield entity if block_given?
+          @backend.create_entity(entity, aliases)
+        end
+      else
         entity = Entity.new_protected(@backend.generate_id)
-        yield entity if block_given?
         @backend.create_entity(entity, aliases)
       end
     end

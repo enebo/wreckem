@@ -33,8 +33,8 @@ describe Wreckem::EntityManager do
     @em["processor"].should == @entity2
   end
 
-  it "should be able to retriece entities using raw uuid" do
-    @em[@entity1.uuid].should == @entity1
+  it "should be able to retriece entities using raw id" do
+    @em[@entity1.id].should == @entity1
   end
 
   # it "should save" do
@@ -45,7 +45,7 @@ describe Wreckem::EntityManager do
 
   it "should look up entities using ref components" do
     Ref = Wreckem::Component.define_as_ref
-    ref = Ref.new(@entity1.uuid)
+    ref = Ref.new(@entity1.id)
     @em[ref].should == @entity1
   end
 end

@@ -3,40 +3,47 @@ require 'set'
 module Wreckem
   class MemoryStore
     def initialize()
-      @entities = {}           # {euuid => entity_instance}
-      @aliases = {}            # {alias_name => euuid}
-      @map_to_aliases = {}     # {euuid => alias_name}
-      @entities_set_for = {}   # {component_class_name => [euuid,...euuidn]}
-      @components = {}         # {cuuid => [euuid1,...,euuidn]}
-      @components_set_for = {} # {euuid => [component1,...componentn]}
+      @entities = {}           # {eid => entity_instance}
+      @aliases = {}            # {alias_name => eid}
+      @map_to_aliases = {}     # {eid => alias_name}
+      @entities_set_for = {}   # {component_class_name => [eid,...eidn]}
+      @components = {}         # {cid => [eid1,...,eidn]}
+      @components_set_for = {} # {eid => [component1,...componentn]}
+      @id = 0
+    end
+
+    ##
+    # other backends differentiate between a update and an insert
+    def create_entity(entity, aliases)
+      store_entity(entity, aliases)
     end
 
     ##
     # Deletes the entity and any associated aliases and returns the entity
     # if successful.  Otherwise nil is returned.
-    def delete_entity(uuid)
-      entity = load_entity(uuid)
+    def delete_entity(id)
+      entity = load_entity(id)
       return nil unless entity
 
-      @entities.delete(uuid)
+      @entities.delete(id)
 
-      components_set_for(uuid).each do |component|
-        entities_set_for(component.class.name).delete uuid
-        components_for(component.uuid).delete uuid
+      components_set_for(id).each do |component|
+        entities_set_for(component.class.name).delete id
+        components_for(component.id).delete id
       end
-      @components_set_for.delete uuid
+      @components_set_for.delete id
 
-      map_to_aliases(uuid).each { |alias_name| @aliases.delete(alias_name) }
-      @map_to_aliases.delete(uuid)
+      map_to_aliases(id).each { |alias_name| @aliases.delete(alias_name) }
+      @map_to_aliases.delete(id)
 
       entity
     end
 
     def delete_component(component)
       eset = entities_set_for(component.class.name)
-      components_for(component.uuid).each do |entity_uuid|
-        components_set_for(entity_uuid).delete component
-        eset.delete(entity_uuid)
+      components_for(component.id).each do |entity_id|
+        components_set_for(entity_id).delete component
+        eset.delete(entity_id)
       end
     end
 
@@ -47,42 +54,46 @@ module Wreckem
       @entities.values
     end
 
+    def generate_id
+      @id += 1
+    end
+
     ##
     # Load component from class
     #
     def load_components_from_class(component_class)
       a = []
-      entities_set_for(component_class.name).each do |entity_uuid|
-        components_set_for(entity_uuid).each do |component|
+      entities_set_for(component_class.name).each do |entity_id|
+        components_set_for(entity_id).each do |component|
           a << component if component_class == component.class
         end
       end
       a
     end
 
-    def load_components_of_entity(entity_uuid)
-      components_set_for(entity_uuid).to_a
+    def load_components_of_entity(entity_id)
+      components_set_for(entity_id).to_a
     end
 
     ##
-    # Load entity of uuid
+    # Load entity of id
     #
-    def load_entity(entity_uuid)
-      @entities[entity_uuid]
+    def load_entity(entity_id)
+      @entities[entity_id]
     end
 
     ##
     # Load entity of alias
     #
     def load_entity_from_alias(a)
-      uuid = @aliases[a]
-      uuid ? load_entity(uuid) : nil
+      id = @aliases[a]
+      id ? load_entity(id) : nil
     end
 
     ##
     # Load entities of an particular component
-    def load_entities_of_component(component_uuid)
-      components_for(component_uuid)
+    def load_entities_of_component(component_id)
+      components_for(component_id)
     end
 
     def load_entities_for_component_class(component_class)
@@ -104,27 +115,31 @@ module Wreckem
     # that was submitted.
     #
     def store_entity(entity, aliases)
-      @entities[entity.uuid] = entity
+      @entities[entity.id] = entity
 
       aliases.each do |a|
-        @aliases[a] = entity.uuid
-        map_to_aliases(entity.uuid) << a
+        @aliases[a] = entity.id
+        map_to_aliases(entity.id) << a
       end
 
       entity
     end
 
     def store_component(entity, component)
-      cuuid = component.uuid
-      raise "Component #{component.class} has no uuid..missing super?" if !cuuid
+      cid = component.id
+      raise "Component #{component.class} has no id..missing super?" if !cid
 
-      components_for(cuuid).add entity.uuid
-      entities_set_for(component.class.name).add entity.uuid
-      components_set_for(entity.uuid).add component
+      components_for(cid).add entity.id
+      entities_set_for(component.class.name).add entity.id
+      components_set_for(entity.id).add component
     end
 
-    def map_to_aliases(uuid)
-      @map_to_aliases[uuid] ||= []
+    def transaction(&block)
+      yield
+    end
+
+    def map_to_aliases(id)
+      @map_to_aliases[id] ||= []
     end
     private :map_to_aliases
 
@@ -134,24 +149,25 @@ module Wreckem
     end
     private :entities_set_for
 
-    def components_set_for(entity_uuid)
-      @components_set_for[entity_uuid] ||= Set.new
+    def components_set_for(entity_id)
+      @components_set_for[entity_id] ||= Set.new
     end
     private :components_set_for
 
-    def components_for(component_uuid)
-      @components[component_uuid] ||= Set.new
+    def components_for(component_id)
+      @components[component_id] ||= Set.new
     end
+    private :components_for
 
     def components_set_as_string
-      @components_set_for.inject("@components_set_for = {euuid => [components]}\n") do |s, (euuid, components)|
-        s << "   #{euuid.inspect}=[#{components.map(&:inspect).to_a.join(', ')}]\n"
+      @components_set_for.inject("@components_set_for = {eid => [components]}\n") do |s, (eid, components)|
+        s << "   #{eid.inspect}=[#{components.map(&:inspect).to_a.join(', ')}]\n"
       end
     end
 
     def components_as_string
-      @components.inject("@components = {cuuid => [euuids]\n") do |s, (cuuid, euuids)|
-        s << "   #{cuuid.inspect}=[#{euuids.map(&:inspect).to_a.join(', ')}]\n"
+      @components.inject("@components = {cid => [eids]\n") do |s, (cid, eids)|
+        s << "   #{cid.inspect}=[#{eids.map(&:inspect).to_a.join(', ')}]\n"
       end
     end
   end

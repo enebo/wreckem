@@ -1,8 +1,8 @@
-require 'wreckem/common_methods'
-
 module Wreckem
   class Entity
-    include Enumerable, Wreckem::CommonMethods
+    include Enumerable
+
+    attr_reader :id
 
     class << self
       alias :new_protected :new
@@ -12,8 +12,8 @@ module Wreckem
       end
     end
 
-    def initialize()
-      @uuid =  uuid ? uuid : generate_uuid
+    def initialize(id)
+      @id = id
     end
 
     def add(*components)

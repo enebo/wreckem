@@ -101,7 +101,7 @@ describe Wreckem::Component do
 
     fun = Fun.new(@entity1)
 
-    fun.same?(@entity1.uuid).should == true
+    fun.same?(@entity1.id).should == true
   end
 
   it "should extract out matched types of comp.new(comp)" do

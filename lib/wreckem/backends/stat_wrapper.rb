@@ -5,9 +5,9 @@ module Wreckem
       @counts, @times = {}, {}
     end
 
-    def delete_entity(uuid)
+    def delete_entity(id)
       time_and_count(:delete_entity) do
-        @backend.delete_entity(uuid)
+        @backend.delete_entity(id)
       end
     end
 
@@ -29,15 +29,15 @@ module Wreckem
       end
     end
 
-    def load_components_of_entity(entity_uuid)
+    def load_components_of_entity(entity_id)
       time_and_count(:load_components_of_entity) do
-        @backend.load_components_of_entity(entity_uuid)
+        @backend.load_components_of_entity(entity_id)
       end
     end
 
-    def load_entity(entity_uuid)
+    def load_entity(entity_id)
       time_and_count(:load_entity) do
-        @backend.load_entity(entity_uuid)
+        @backend.load_entity(entity_id)
       end
     end
 
@@ -47,9 +47,9 @@ module Wreckem
       end
     end
 
-    def load_entities_of_component(component_uuid)
+    def load_entities_of_component(component_id)
       time_and_count(:load_entities_of_component) do
-        @backend.load_entities_of_component(component_uuid)
+        @backend.load_entities_of_component(component_id)
       end
     end
 

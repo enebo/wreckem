@@ -1,5 +1,3 @@
-require 'wreckem/common_methods'
-
 module Wreckem
   ##
   # Component is the data holder for this EC framework.  This is probably
@@ -10,11 +8,10 @@ module Wreckem
   # they live in.
   #
   class Component
-    include Wreckem::CommonMethods
-    extend Wreckem::CommonMethods
+    attr_reader :id
 
-    def initialize()
-      @uuid = generate_uuid
+    def initialize
+      @id = self.class.manager.generate_id
     end
 
     ##
@@ -29,7 +26,7 @@ module Wreckem
     # Get the (first) entity for this component instance.
     #
     def entity
-      self.class.manager.entities_for_component(@uuid).first
+      self.class.manager.entities_for_component(@id).first
     end
 
     ##
@@ -93,9 +90,9 @@ module Wreckem
     #
     def self.intersects(*cclasses)
       cclasses = [self] + cclasses
-      manager.entities_for_component_class(self).each do |entity_uuid|
-        entity = manager[entity_uuid]
-        hash = manager.components_of_entity(entity_uuid).inject({}) do |s, c|
+      manager.entities_for_component_class(self).each do |entity_id|
+        entity = manager[entity_id]
+        hash = manager.components_of_entity(entity_id).inject({}) do |s, c|
           s[c.class] = c if cclasses.include? c.class
           s
         end
@@ -152,7 +149,7 @@ module Wreckem
             if value.kind_of?(Wreckem::Component) && value.type == type
               @value = value.value
             elsif value.kind_of?(Wreckem::Entity) && type == :ref
-              @value = value.uuid
+              @value = value.id
             else
               @value = value
             end

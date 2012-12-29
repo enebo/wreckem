@@ -19,9 +19,11 @@ module Wreckem
     # entities.
     #
     def create_entity(*aliases)
-      entity = Entity.new_protected
-      yield entity if block_given?
-      @backend.store_entity(entity, aliases)
+      transaction do
+        entity = Entity.new_protected(@backend.generate_id)
+        yield entity if block_given?
+        @backend.create_entity(entity, aliases)
+      end
     end
 
     ##
@@ -36,17 +38,17 @@ module Wreckem
     end
 
     def components_of_entity(entity)
-      @backend.load_components_of_entity(uuid_for(entity))
+      @backend.load_components_of_entity(id_for(entity))
     end
 
     ##
-    # Retrieve entity from entity instance, uuid, or alias in that order
+    # Retrieve entity from entity instance, id, or alias in that order
     #
     def [](entity_or_alias)
       if entity_or_alias.respond_to?(:ref)
         @backend.load_entity(entity_or_alias.ref)
-      elsif entity_or_alias.respond_to? :uuid
-        @backend.load_entity(entity_or_alias.uuid)
+      elsif entity_or_alias.respond_to? :id
+        @backend.load_entity(entity_or_alias.id)
       else
         value = @backend.load_entity(entity_or_alias)
         value = @backend.load_entity_from_alias(entity_or_alias) unless value
@@ -58,24 +60,28 @@ module Wreckem
       @backend.delete_component(component)
     end
 
-    def delete_entity(uuid)
-      @backend.delete_entity(uuid_for(uuid))
+    def delete_entity(id)
+      @backend.delete_entity(id_for(id))
     end
 
     def entities_for_component(component)
-      @backend.load_entities_of_component(uuid_for(component)).map do |uuid|
-        self[uuid]
+      @backend.load_entities_of_component(id_for(component)).map do |id|
+        self[id]
       end
     end
 
     def entities_for_component_class(component_class)
-      @backend.load_entities_for_component_class(component_class).map {|uuid| self[uuid] }
+      @backend.load_entities_for_component_class(component_class).map {|id| self[id] }
     end
 
     def entity_as_string(entity)
-      entity.components.inject("#{entity.uuid.inspect}\n") do |s, component|
+      entity.components.inject("#{entity.id.inspect}\n") do |s, component|
         s << "    #{component.inspect}\n"
       end
+    end
+
+    def generate_id
+      @backend.generate_id
     end
 
     def each
@@ -90,9 +96,13 @@ module Wreckem
       @backend.entities.size
     end
 
-    def uuid_for(something)
-      something.respond_to?(:uuid) ? something.uuid : something
+    def transaction(&block)
+      @backend.transaction(&block)
     end
-    private :uuid_for
+
+    def id_for(something)
+      something.respond_to?(:id) ? something.id : something
+    end
+    private :id_for
   end
 end

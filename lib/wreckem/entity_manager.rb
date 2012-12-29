@@ -19,7 +19,7 @@ module Wreckem
     # entities.
     #
     def create_entity(*aliases, &block)
-      @backend.store_entity(Entity.new(&block), aliases)
+      @backend.store_entity(Entity.new_protected(&block), aliases)
     end
 
     ##

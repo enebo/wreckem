@@ -4,6 +4,14 @@ module Wreckem
   class Entity
     include Enumerable, Wreckem::CommonMethods
 
+    class << self
+      alias :new_protected :new
+
+      def new
+        raise NoMethodError.new("Use Wreckem::EntityManager.create_entity")
+      end
+    end
+
     def initialize(uuid=nil)
       @uuid =  uuid ? uuid : generate_uuid
 

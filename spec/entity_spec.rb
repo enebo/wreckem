@@ -10,6 +10,10 @@ describe Wreckem::Entity do
     @em = Wreckem::EntityManager.new
   end
 
+  it "should not be directly constructable" do
+    expect { Wreckem::Entity.new }.to raise_error NoMethodError
+  end
+
   it "should add to an entity using is" do
     bag = @em.create_entity("bag")
     bag.is(Container)

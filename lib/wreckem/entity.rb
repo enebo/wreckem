@@ -12,10 +12,8 @@ module Wreckem
       end
     end
 
-    def initialize(uuid=nil)
+    def initialize()
       @uuid =  uuid ? uuid : generate_uuid
-
-      yield self if block_given?
     end
 
     def add(*components)

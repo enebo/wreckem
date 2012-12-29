@@ -18,8 +18,10 @@ module Wreckem
     # Note: These aliases are considered to be unique across all
     # entities.
     #
-    def create_entity(*aliases, &block)
-      @backend.store_entity(Entity.new_protected(&block), aliases)
+    def create_entity(*aliases)
+      entity = Entity.new_protected
+      yield entity if block_given?
+      @backend.store_entity(entity, aliases)
     end
 
     ##

@@ -5,6 +5,12 @@ module Wreckem
       @counts, @times = {}, {}
     end
 
+    def create_entity(entity, aliases)
+      time_and_count(:create_entity) do
+        @backend.create_entity(entity, aliases)
+      end
+    end
+
     def delete_entity(id)
       time_and_count(:delete_entity) do
         @backend.delete_entity(id)
@@ -20,6 +26,12 @@ module Wreckem
     def entities
       time_and_count(:entities) do
         @backend.entities
+      end
+    end
+
+    def generate_id
+      time_and_count(:generate_id) do
+        @backend.generate_id
       end
     end
 
@@ -78,6 +90,13 @@ module Wreckem
         @backend.store_component(entity, component)
       end
     end
+
+    def transaction(&block)
+      time_and_count(:transaction) do
+        @backend.transaction(&block)
+      end
+    end
+
 
     def time_and_count(method)
       start = Time.now

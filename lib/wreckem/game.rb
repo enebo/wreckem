@@ -1,8 +1,5 @@
-require 'wreckem/common_methods'
-
 module Wreckem
   class Game
-    include Wreckem::CommonMethods
     attr_reader :systems, :async_systems, :manager
 
     def initialize(backend=nil)

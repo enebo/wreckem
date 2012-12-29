@@ -40,6 +40,21 @@ describe Wreckem::Entity do
     bag.one(Container).class.should == Container
   end
 
+  it "should execute in a transaction for create_entity" do
+    h = HitPoints.new(6)
+    id = nil
+    player = @em.create_entity do |e|
+      id = e.id
+      e.has(h)
+      @em[e.id].should == nil
+      HitPoints.all.find { |hp| hp == h }.should == nil
+    end
+
+    @em[id].should == player
+    HitPoints.all.find { |hp| hp == h }.should == h
+  end
+
+
   it "should know if it contains components with is and has" do
     bag = @em.create_entity("bag")
     bag.is(Container)

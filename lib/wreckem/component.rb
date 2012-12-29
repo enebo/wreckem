@@ -168,8 +168,14 @@ module Wreckem
           @value.to_s
         end
 
-        # Special reference method for things to key off of.
-        alias_method :ref, :value if data_type == :ref
+        if data_type == :ref
+          def to_entity
+            manager[ref]
+          end
+
+          # Special reference method for things to key off of.
+          alias_method :ref, :value
+        end
 
         define_method(:type) { data_type }
       end

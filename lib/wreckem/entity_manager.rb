@@ -60,8 +60,8 @@ module Wreckem
       @backend.delete_component(component)
     end
 
-    def delete_entity(id)
-      @backend.delete_entity(id_for(id))
+    def delete_entity(entity)
+      @backend.delete_entity(entity)
     end
 
     def entities_for_component(component)

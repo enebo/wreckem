@@ -21,6 +21,14 @@ module Wreckem
     end
     alias_method :has, :add
 
+    def components
+      manager.components_of_entity(self).to_a
+    end
+
+    def delete(*components)
+      components.each { |component| manager.delete_component(component) }
+    end
+
     ##
     # For boolean components as a nicer looking way of specifying them
     def is(*cclasses)
@@ -32,24 +40,16 @@ module Wreckem
     end
     alias_method :has?, :is?
 
-    def one(component_class)
-      component_class.one(self)
-    end
-
     def many(component_class)
       component_class.many(self)
     end
 
+    def one(component_class)
+      component_class.one(self)
+    end
+
     def each
       manager.components_of_entity(self).each { |c| yield c }
-    end
-
-    def components
-      manager.components_of_entity(self).to_a
-    end
-
-    def delete(*components)
-      components.each { |component| manager.delete_component(component) }
     end
 
     def manager

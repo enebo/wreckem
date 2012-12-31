@@ -1,34 +1,19 @@
 require 'wreckem/entity'
 require 'wreckem/component'
 require 'wreckem/backends/memory'
+require 'wreckem/backends/sequel_store'
 
 module Wreckem
+  EntityAlias = Wreckem::Component.define
+
   class EntityManager
     include Enumerable
 
-    def initialize(backend=Wreckem::MemoryStore.new)
+    def initialize(backend=Wreckem::SequelStore.new)
       Wreckem::Entity.manager = self
       Wreckem::Component.manager = self
       
       @backend = backend
-    end
-
-    ##
-    # Create a new entity and provide it with n possible aliases.
-    # Note: These aliases are considered to be unique across all
-    # entities.
-    #
-    def create_entity(*aliases)
-      if block_given?
-        transaction do
-          entity = Entity.new_protected(@backend.generate_id)
-          yield entity if block_given?
-          @backend.create_entity(entity, aliases)
-        end
-      else
-        entity = Entity.new_protected(@backend.generate_id)
-        @backend.create_entity(entity, aliases)
-      end
     end
 
     ##
@@ -71,6 +56,10 @@ module Wreckem
       @backend.delete_entity(entity)
     end
 
+    def destroy
+      @backend.destroy
+    end
+
     def entities_for_component(component)
       @backend.load_entities_of_component(id_for(component)).map do |id|
         self[id]
@@ -97,6 +86,16 @@ module Wreckem
 
     def save
       @backend.save
+    end
+
+    def save_component(component)
+      # New components have no assigned ids yet.  They are set once stored
+      # in the database.
+      if component.id
+        @backend.update_component(component)
+      else
+        @backend.insert_component(component)
+      end
     end
 
     def size

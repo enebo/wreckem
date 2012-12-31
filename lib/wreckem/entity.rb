@@ -1,3 +1,5 @@
+require 'wreckem/batch'
+
 module Wreckem
   class Entity
     include Enumerable
@@ -8,31 +10,53 @@ module Wreckem
       alias :new_protected :new
 
       def new
-        raise NoMethodError.new("Use Wreckem::EntityManager.create_entity")
+        raise NoMethodError.new("Use Wreckem::Entity.is")
       end
     end
 
-    def initialize(id)
-      @id = id
+    ##
+    # Create a new entity.  Entity is really just the id and the batch
+    # is just a mechanism for capturing all the construction aspects of
+    # this API.
+    def initialize(id, batch=nil)
+      @id, @batch = id, batch
     end
 
+    ##
+    # Do two instances of entity represent the same 
+    #
+    def ==(other)
+      self.class == other.class && self.id == other.id
+    end
+
+    ##
+    # Add all components to this entity
+    #
     def add(*components)
-      components.each { |component| manager.add_component(self, component) }
+      components.each do |component|
+        component.eid = id
+        @batch << component
+      end
     end
     alias_method :has, :add
 
+    ##
+    # Get a list of all local components (e.g. non-persisted)
     def components
       manager.components_of_entity(self).to_a
     end
 
-    def delete(*components)
-      components.each { |component| manager.delete_component(component) }
+    def delete
+      manager.delete_entity(self)
     end
 
     ##
     # For boolean components as a nicer looking way of specifying them
     def is(*cclasses)
-      cclasses.each { |component_class| add(component_class.new) }
+      cclasses.each do |component_class|
+        raise ArgumentError unless component_class
+        add(component_class.new)
+      end
     end
 
     def is?(component_class)
@@ -54,6 +78,24 @@ module Wreckem
 
     def manager
       self.class.manager
+    end
+
+    ##
+    # Primary method for defining entities and its associated components.
+    # Note that this method will only define the entity and anything
+    # constructed within the block locally.
+    def self.is(&block)
+      Batch.new.tap do |batch| 
+        yield Entity.new_protected(manager.generate_id, batch) 
+      end
+    end
+
+    def self.is!(&block)
+      is(&block).save
+    end
+
+    def self.find(entity_id)
+      manager[entity_id]
     end
 
     def self.manager=(manager)

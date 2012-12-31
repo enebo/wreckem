@@ -2,108 +2,94 @@ require 'wreckem/entity_manager'
 require 'wreckem/component'
 
 Container = Wreckem::Component.define
-HitPoints = Wreckem::Component.define_as_int
 Wound = Wreckem::Component.define_as_int
 
 describe Wreckem::Entity do
-  before do
-    @em = Wreckem::EntityManager.new
-  end
+  before { @em = Wreckem::EntityManager.new }
+  after { @em.destroy }
 
   it "should not be directly constructable" do
     expect { Wreckem::Entity.new }.to raise_error NoMethodError
   end
 
-  it "should add to an entity using is" do
-    bag = @em.create_entity("bag")
-    bag.is(Container)
-    components = bag.to_a
-    components.size.should == 1
-    components[0].class.should == Container
-
-    Container.one(bag).class.should == Container
-  end
-
-  it "should add to an entity using has" do
-    bag = @em.create_entity("bag")
-    bag.has(Container.new)
-    components = bag.to_a
-    components.size.should == 1
-    components[0].class.should == Container
-  end
-
-  it "should create entity using a block" do
-    bag = @em.create_entity("bag") do |e|
+  it "should create an entity using 'is'" do
+    # Local un-saved section
+    entity = nil
+    batch = Wreckem::Entity.is do |e|
       e.is(Container)
+      entity = e
     end
 
-    bag.one(Container).class.should == Container
+    batch.items.map(&:class).should == [Container] # Exists only in batch
+
+    Container.one(entity).should == nil # Not saved yet
+    
+    batch.save # Save via backend
+
+    # Lookup via backend
+    Container.one(entity).class.should == Container
   end
 
-  it "should execute in a transaction for create_entity" do
-    h = HitPoints.new(6)
-    id = nil
-    player = @em.create_entity do |e|
-      id = e.id
-      e.has(h)
-      @em[e.id].should == nil
-      HitPoints.all.find { |hp| hp == h }.should == nil
+  it "should create an entity using 'is!" do
+    entity = Wreckem::Entity.is! { |e| e.is(Container) }
+
+    Container.one(entity).class.should == Container
+  end
+
+  it "should add to an entity using 'has'" do
+    entity = Wreckem::Entity.is! { |e| e.has(Wound.new(12)) }
+
+    Wound.one(entity).value.should == 12
+  end
+
+  it "should know if it contains components with 'is' and 'has'" do
+    entity = Wreckem::Entity.is! { |e| e.is(Container) }
+
+    entity.is?(Container).should_not be_nil
+    entity.has?(Container).should_not be_nil
+  end
+
+  it "should be findable via Wreckem::Entity.find" do
+    entity = Wreckem::Entity.is! { |e| e.is(Container) }
+
+    entity2 = Wreckem::Entity.find entity.id
+    
+    entity.should == entity2
+  end
+
+  it "should access all same-type components using 'many'" do
+    entity = Wreckem::Entity.is! do |e|
+      e.has Wound.new(5)
+      e.has Wound.new(4)
+      e.has Wound.new(3)
     end
 
-    @em[id].should == player
-    HitPoints.all.find { |hp| hp == h }.should == h
+    entity.many(Wound).size.should == 3
   end
 
-  it "should execute in an explicit transaction block" do
-    h = HitPoints.new(6)
-    player = nil
-    id = nil
-    @em.transaction do
-      player = @em.create_entity
-      id = player.id
-      player.has(h)
-      @em[player.id].should == nil
-      HitPoints.all.find { |hp| hp == h }.should == nil
+  # to_a from Enumerable excercises 'each'
+  it "should access all same-type components using 'each'" do
+    entity = Wreckem::Entity.is! do |e|
+      e.is Container
+      e.has Wound.new(5)
+      e.has Wound.new(4)
+      e.has Wound.new(3)
     end
 
-    @em[id].should == player
-    HitPoints.all.find { |hp| hp == h }.should == h
+    entity.to_a.size.should == 4
   end
 
-  it "nested transactions in same thread should merge" do
-    @em.transaction do
-      h = HitPoints.new(6)
-      player = @em.create_entity do |e|
-        id = e.id
-        e.has(h)
-        @em[id].should == nil
-        HitPoints.all.find { |hp| hp == h }.should == nil
-      end
-    end
-  end
-
-  it "should know if it contains components with is and has" do
-    bag = @em.create_entity("bag")
-    bag.is(Container)
-
-    bag.is?(Container).should_not be_nil
-    bag.has?(Container).should_not be_nil
-  end
-
-  it "should access one component using one" do
-    bag = @em.create_entity
-    bag.has HitPoints.new(9001)
-
-    bag.one(HitPoints).value.should == 9001
-  end
-
-  it "should access all same-type components using many" do
-    player = @em.create_entity do |p|
-      p.has Wound.new(5)
-      p.has Wound.new(4)
-      p.has Wound.new(3)
+  it "should 'delete' all components associated with it" do
+    entity = Wreckem::Entity.is! do |e|
+      e.has Wound.new(5)
+      e.has Wound.new(4)
+      e.has Wound.new(3)
     end
 
-    player.many(Wound).size.should == 3
+    entity.many(Wound).size.should == 3
+
+    entity.delete
+
+    entity.many(Wound).size.should == 0
   end
 end

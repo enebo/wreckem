@@ -8,10 +8,10 @@ module Wreckem
   # they live in.
   #
   class Component
-    attr_reader :id
+    attr_accessor :id
+    attr_accessor :eid
 
     def initialize
-      @id = self.class.manager.generate_id
     end
 
     ##
@@ -26,7 +26,14 @@ module Wreckem
     # Get the (first) entity for this component instance.
     #
     def entity
-      self.class.manager.entities_for_component(@id).first
+      Wreckem::Entity.new_protected(eid)
+    end
+
+    ##
+    # Save/persist this component
+    #
+    def save
+      self.class.manager.save_component(self)
     end
 
     ##
@@ -71,6 +78,8 @@ module Wreckem
       manager.entities_for_component_class(self).each { |e| yield e }
     end
 
+    # FIXME: The DB should be doing this intersection logic
+
     ##
     # Retrieve entity + all intersected component instances which are
     # present across all entities.  Note that your first component should
@@ -79,10 +88,10 @@ module Wreckem
     #
     # == Examples
     #
-    #  CommandLine.intersects(Diety, Name) do |entity, cli, diety, name|
+    #  CommandLine.intersects(Diety, Name) do |cli, diety, name|
     #     puts "#{name.value} is executing #{cli.line}"
     #     execute(cli.line)
-    #     entity.delete cli  # Done executing command
+    #     cli.delete  # Done executing command
     #  end
     #
     #  In this example very few people are entering commands and they may be 
@@ -99,7 +108,7 @@ module Wreckem
 
         list = cclasses.map { |c| hash[c] }.compact
 
-        yield entity, *list if list.size == cclasses.size
+        yield list if list.size == cclasses.size
       end
     end
 
@@ -134,7 +143,11 @@ module Wreckem
       Class.new(Component) do
         if data_type == :aspect
           def initialize
-            super()
+            super
+          end
+
+          def ==(other)
+            self.class == other.class && self.id == other.id
           end
 
           def value
@@ -153,7 +166,13 @@ module Wreckem
             else
               @value = value
             end
+
+            @value = @value.to_s if type == :string
           end
+        end
+
+        def ==(other)
+          self.class == other.class && self.id == other.id && self.value == other.value
         end
 
         def same?(other)

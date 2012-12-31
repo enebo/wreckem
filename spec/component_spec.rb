@@ -1,130 +1,90 @@
 require 'wreckem/entity_manager'
 
-class Position < Wreckem::Component
-  attr_accessor :x, :y
-
-  def initialize(x, y)
-    super()
-    @x, @y = x, y
-  end
-end
-
-class Shape < Wreckem::Component
-  attr_accessor :kind
-
-  def initialize(kind)
-    super()
-    @kind = kind
-  end
-end
+Position = Wreckem::Component.define_as_int
+Shape = Wreckem::Component.define_as_string
+FooRef = Wreckem::Component.define_as_ref
 
 describe Wreckem::Component do
-  before do
-    @em = Wreckem::EntityManager.new
-    @entity1 = @em.create_entity("toy")
-    @entity2 = @em.create_entity("cpu", "processor")
-    @position1 = Position.new(10, 20)
-    @position2 = Position.new(0, 0)
-    @shape = Shape.new(:triangle)
-    @entity1.add @position1
-    @entity1.add @shape
-    @entity2.add @position2
-    @entity3 = @em.create_entity do |e|
-      e.add Shape.new(:square)
-      e.add Shape.new(:rectangle)
-    end
-  end
+  before { @em = Wreckem::EntityManager.new }
+  after { @em.destroy }
 
   it "should not be able to add nil as a component" do
-    expect { @entity1.has(nil) }.to raise_error(ArgumentError)
+    expect { Wreckem::Entity.is! {|e| e.is(nil) }}.to raise_error(ArgumentError)
   end
 
-  it "should add components to entities" do
-    @entity1.to_a.size.should == 2
-    @entity2.to_a.size.should == 1
-  end
 
-  it "should find all component instances using all" do
+  it "should find all component instances using 'all'" do
+    Wreckem::Entity.is! { |e| e.has Position.new(4) }
+    Wreckem::Entity.is! { |e| e.has Position.new(5) }
+  
     Position.all.size.should == 2
-    Shape.all.size.should == 3
   end
 
   it "should find entities with intersects" do
-    Position.intersects(Shape) do |entity, position, shape|
-      entity.should == @entity1
-      position.should == @position1
-      shape.should == @shape
+    Wreckem::Entity.is! { |e| e.has Position.new(4) }
+    Wreckem::Entity.is! do |e| 
+      e.has Position.new(5)
+      e.has Shape.new "circle"
+    end
+
+    Position.intersects(Shape) do |position, shape|
+      position.value.should == 5
+      shape.value.should == "circle"
     end
   end
 
   it "should final entities using entities" do
+    Wreckem::Entity.is! { |e| e.has Position.new(4) }
+    Wreckem::Entity.is! { |e| e.has Shape.new("square") }
+    Wreckem::Entity.is! do |e| 
+      e.has Position.new(5)
+      e.has Shape.new "circle"
+    end
+
     entities = Shape.entities
     entities.size.should == 2
     entities.first.class.should == Wreckem::Entity
   end
 
-  it "should remove a component from an entity" do
-    @entity1.delete @position1
-    @entity1.components.size.should == 1
-    @entity1.components.first.should == @shape
-  end
-
   it "should get component from an entity" do
-    Shape.one(@entity1).should == @shape
-    Shape.many(@entity3).size.should == 2
+    entity1 = Wreckem::Entity.is! { |e| e.has Shape.new("square") }
+    entity2 = Wreckem::Entity.is! do |e| 
+      e.has Shape.new "sphere"
+      e.has Shape.new "circle"
+    end
+
+    Shape.one(entity1).value.should == "square"
+    Shape.many(entity2).size.should == 2
   end
 
   it "should get entity from a component instance" do
-    @shape.entity.should == @entity1
+    shape = Shape.new "square"
+    entity = Wreckem::Entity.is! { |e| e.has shape }
+
+    shape.entity.should == entity
   end
 
-  it "should create new components with define" do
-    Foo = Wreckem::Component.define
-    @entity1.is Foo
+  it "should update components using 'save'" do
+    entity = Wreckem::Entity.is! { |e| e.has Position.new(4) }
 
-    @entity1.is?(Foo).should_not be_nil
+    position = Position.one(entity)
+    position.value += 1
+    position.save
 
-    Bar = Wreckem::Component.define_as_int
-    @entity1.has Bar.new(5)
-
-    @entity1.one(Bar).type.should == :int
-    @entity1.one(Bar).value.should == 5
-    @entity1.one(Bar).value = 6
-    @entity1.one(Bar).value.should == 6
+    position = Position.one(entity)
+    position.value.should == 5
   end
 
-  it "should to_s the boxed component value" do
-    Num = Wreckem::Component.define_as_int
+  it "should 'to_s' the boxed component value" do
+    entity = Wreckem::Entity.is! { |e| e.has Position.new(4) }
 
-    @entity1.has Num.new(5)
-    @entity1.one(Num).to_s.should == "5"
+    entity.one(Position).to_s.should == "4"
   end
 
   it "should allow same? to do equality comparison" do
-    Fun = Wreckem::Component.define_as_ref
+    entity = Wreckem::Entity.is! { |e| e.has Position.new(4) }
 
-    fun = Fun.new(@entity1)
-
-    fun.same?(@entity1.id).should == true
-  end
-
-  it "should extract out matched types of comp.new(comp)" do
-    Gun = Wreckem::Component.define_as_ref
-    Hun = Wreckem::Component.define_as_ref
-    Iun = Wreckem::Component.define_as_int
-
-    gun = Gun.new(@entity1)
-    hun = Hun.new(gun)
-    iun = Iun.new(5)
-
-    gun.same?(hun).should == true
-    hun.same?(iun).should == false
-  end
-
-  it "should should all all comp(:ref) to accept entities" do
-    Jun = Wreckem::Component.define_as_int
-    
-    Jun.new(@entity1).value.should == @entity1
-
+    fun = FooRef.new(entity)
+    fun.same?(entity.id).should == true
   end
 end

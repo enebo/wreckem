@@ -16,15 +16,6 @@ module Wreckem
       @backend = backend
     end
 
-    ##
-    # Add supplied components to the supplied entity.
-    #
-    def add_component(entity, component)
-      raise ArgumentError.new("nil component?") unless component
-
-      @backend.store_component(entity, component)
-    end
-
     def components_for_class(component_class)
       @backend.load_components_from_class(component_class)
     end
@@ -68,12 +59,6 @@ module Wreckem
 
     def entities_for_component_class(component_class)
       @backend.load_entities_for_component_class(component_class).map {|id| self[id] }
-    end
-
-    def entity_as_string(entity)
-      entity.components.inject("#{entity.id.inspect}\n") do |s, component|
-        s << "    #{component.inspect}\n"
-      end
     end
 
     def generate_id

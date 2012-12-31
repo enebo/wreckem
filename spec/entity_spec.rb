@@ -42,6 +42,14 @@ describe Wreckem::Entity do
     Wound.one(entity).value.should == 12
   end
 
+  it "should add an entity outside of is/is!" do
+    entity = Wreckem::Entity.is! { |e| e.has(Wound.new(12)) }
+
+    entity.is Container
+
+    Container.one(entity).class.should == Container
+  end
+
   it "should know if it contains components with 'is' and 'has'" do
     entity = Wreckem::Entity.is! { |e| e.is(Container) }
 

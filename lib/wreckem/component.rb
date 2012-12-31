@@ -189,7 +189,7 @@ module Wreckem
 
         if data_type == :ref
           def to_entity
-            manager[ref]
+            Wreckem::Entity.find(ref)
           end
 
           # Special reference method for things to key off of.

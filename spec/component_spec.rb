@@ -87,4 +87,14 @@ describe Wreckem::Component do
     fun = FooRef.new(entity)
     fun.same?(entity.id).should == true
   end
+
+  it "should allow references to call 'to_entity'" do
+    entity = Wreckem::Entity.is! { |e| e.has Position.new(4) }
+    entity2 = Wreckem::Entity.is! do |e|
+      e.has Position.new(3)
+      e.has FooRef.new(entity.id)
+    end
+
+    FooRef.one(entity2).to_entity.should == entity
+  end
 end

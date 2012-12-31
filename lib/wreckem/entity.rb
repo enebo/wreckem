@@ -35,7 +35,11 @@ module Wreckem
     def add(*components)
       components.each do |component|
         component.eid = id
-        @batch << component
+        if @batch
+          @batch << component
+        else
+          component.save
+        end
       end
     end
     alias_method :has, :add
@@ -78,6 +82,12 @@ module Wreckem
 
     def manager
       self.class.manager
+    end
+
+    def as_string
+      components.inject(id.inspect + "\n") do |s, component|
+        s << "    #{component.inspect}\n"
+      end
     end
 
     ##

@@ -125,10 +125,13 @@ module Wreckem
       end
     end
 
-    def load_entities_for_component_class(component_class)
-      cname = component_class.name
-      @components.where(:name => cname).inject([]) do |result, row|
-        result << Entity.new_protected(row[:eid])
+    def load_entities_for_component_class(component_class, &block)
+      query = @components.where(:name => component_class.name)
+
+      if block_given?
+        query.each { |row| yield }
+      else
+        query.map { |row| Entity.new_protected(row[:eid]) }.enum_for(:each)
       end
     end
 

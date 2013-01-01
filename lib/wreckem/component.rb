@@ -72,10 +72,8 @@ module Wreckem
     #
     #   Player.entities # A systems wants to act on all player entities
     #
-    def self.entities
-      return manager.entities_for_component_class(self) unless block_given?
-
-      manager.entities_for_component_class(self).each { |e| yield e }
+    def self.entities(&block)
+      manager.entities_for_component_class(self, &block)
     end
 
     # FIXME: The DB should be doing this intersection logic
@@ -99,7 +97,7 @@ module Wreckem
     #
     def self.intersects(*cclasses)
       cclasses = [self] + cclasses
-      manager.entities_for_component_class(self).each do |entity|
+      manager.entities_for_component_class(self) do |entity|
         hash = manager.components_of_entity(entity).inject({}) do |s, c|
           s[c.class] = c if cclasses.include? c.class
           s

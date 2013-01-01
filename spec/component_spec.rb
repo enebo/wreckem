@@ -20,7 +20,7 @@ describe Wreckem::Component do
     Position.all.size.should == 2
   end
 
-  it "should find entities with intersects" do
+  it "should find entities with 'intersects'" do
     Wreckem::Entity.is! { |e| e.has Position.new(4) }
     Wreckem::Entity.is! do |e| 
       e.has Position.new(5)
@@ -33,7 +33,20 @@ describe Wreckem::Component do
     end
   end
 
-  it "should final entities using entities" do
+  it "should find all entities using 'entities'" do
+    Wreckem::Entity.is! { |e| e.has Position.new(4) }
+    Wreckem::Entity.is! { |e| e.has Shape.new("square") }
+    Wreckem::Entity.is! do |e| 
+      e.has Position.new(5)
+      e.has Shape.new "circle"
+    end
+
+    entities = Shape.entities.to_a
+    entities.size.should == 2
+    entities.first.class.should == Wreckem::Entity
+  end
+
+  it "should find all entities using 'entities' via enumerator" do
     Wreckem::Entity.is! { |e| e.has Position.new(4) }
     Wreckem::Entity.is! { |e| e.has Shape.new("square") }
     Wreckem::Entity.is! do |e| 
@@ -42,8 +55,9 @@ describe Wreckem::Component do
     end
 
     entities = Shape.entities
-    entities.size.should == 2
-    entities.first.class.should == Wreckem::Entity
+    count = 0
+    entities.each { |e| count += 1 }
+    count.should == 2
   end
 
   it "should get component from an entity" do

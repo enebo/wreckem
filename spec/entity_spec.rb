@@ -65,6 +65,12 @@ describe Wreckem::Entity do
     entity.should == entity2
   end
 
+  it "should be nil id value is nil to Wreckem::Entity.find" do
+    entity = Wreckem::Entity.find nil
+    
+    entity.should == nil
+  end
+
   it "should access all same-type components using 'many'" do
     entity = Wreckem::Entity.is! do |e|
       e.has Wound.new(5)

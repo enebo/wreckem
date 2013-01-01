@@ -169,6 +169,15 @@ module Wreckem
 
             @value = @value.to_s if type == :string
           end
+
+          def update(new_value)
+            @value = new_value
+          end
+
+          def update!(new_value)
+            update(new_value)
+            save
+          end
         end
 
         def ==(other)

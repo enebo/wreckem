@@ -97,4 +97,29 @@ describe Wreckem::Component do
 
     FooRef.one(entity2).to_entity.should == entity
   end
+
+  it "should allow new values via 'update'" do
+    entity = Wreckem::Entity.is! { |e| e.has Position.new(4) }
+
+    pos = Position.one(entity)
+    pos.update(5)
+    pos.value.should == 5
+
+    pos2 = Position.one(entity)
+    pos2.value.should == 4
+
+    pos.save
+
+    pos2 = Position.one(entity)
+    pos2.value.should == 5
+  end
+
+  it "should allow new values via 'update!'" do
+    entity = Wreckem::Entity.is! { |e| e.has Position.new(4) }
+
+    pos = Position.one(entity)
+    pos.update!(5)
+    pos2 = Position.one(entity)
+    pos2.value.should == 5
+  end
 end

@@ -73,8 +73,8 @@ module Wreckem
     ##
     # Give 0 or more resulting components of the supplied component class
     # for this entity.
-    def many(component_class)
-      component_class.many(self)
+    def many(component_class, &block)
+      component_class.many(self, &block)
     end
 
     ##

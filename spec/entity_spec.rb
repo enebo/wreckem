@@ -72,7 +72,12 @@ describe Wreckem::Entity do
       e.has Wound.new(3)
     end
 
-    entity.many(Wound).size.should == 3
+    count = 0
+    entity.many(Wound).each do |w|
+      w.class.should == Wound
+      count += 1
+    end
+    count.should == 3
   end
 
   # to_a from Enumerable excercises 'each'
@@ -94,10 +99,10 @@ describe Wreckem::Entity do
       e.has Wound.new(3)
     end
 
-    entity.many(Wound).size.should == 3
+    entity.many(Wound).to_a.size.should == 3
 
     entity.delete
 
-    entity.many(Wound).size.should == 0
+    entity.many(Wound).to_a.size.should == 0
   end
 end

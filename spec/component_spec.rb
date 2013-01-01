@@ -83,7 +83,7 @@ describe Wreckem::Component do
     end
 
     Shape.one(entity1).value.should == "square"
-    Shape.many(entity2).size.should == 2
+    Shape.many(entity2).to_a.size.should == 2
   end
 
   it "should get entity from a component instance" do

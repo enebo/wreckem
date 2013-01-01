@@ -41,8 +41,14 @@ module Wreckem
     # entity.  If only one instance exists then it returns just the
     # instance; otherwise it will return the instances as a list.
     #
-    def self.many(e)
-      manager.components_of_entity(e).find_all {|c| c.class == self }
+    def self.many(e, &block)
+      many = manager.components_of_entity(e).find_all {|c| c.class == self }
+
+      if block_given?
+        many.each { |c| yield c }
+      else
+        many.to_enum(:each)
+      end
     end
 
     ##
@@ -167,10 +173,16 @@ module Wreckem
             @value = @value.to_s if type == :string
           end
 
+          ##
+          # Update this components value to the new value without forcing
+          # it to persist.
           def update(new_value)
             @value = new_value
           end
 
+          ##
+          # Update this components value to the new value and have it 
+          # persist this component.
           def update!(new_value)
             update(new_value)
             save

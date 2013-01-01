@@ -120,6 +120,8 @@ module Wreckem
     # Load entity of id
     #
     def load_entity(entity_id)
+      return nil unless entity_id
+
       Entity.new_protected(entity_id)  # FIXME: should we really query on this?
     end
 

@@ -27,16 +27,14 @@ module Wreckem
     ##
     # Retrieve entity from entity instance, id, or alias in that order
     #
-    def [](entity_or_alias)
-      if entity_or_alias.respond_to?(:ref)
-        @backend.load_entity(entity_or_alias.ref)
-      elsif entity_or_alias.respond_to? :id
-        @backend.load_entity(entity_or_alias.id)
-      else
-        value = @backend.load_entity(entity_or_alias)
-        value = @backend.load_entity_from_alias(entity_or_alias) unless value
-        value
+    def [](entity)
+      if entity.respond_to?(:ref)
+        entity = entity.ref
+      elsif entity.respond_to?(:id)
+        entity = entity.id
       end
+
+      @backend.load_entity(entity)
     end
 
     def delete_component(component)

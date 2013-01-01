@@ -50,13 +50,11 @@ module Wreckem
     end
 
     def entities_for_component(component)
-      @backend.load_entities_of_component(id_for(component)).map do |id|
-        self[id]
-      end
+      @backend.load_entities_of_component(id_for(component))
     end
 
     def entities_for_component_class(component_class)
-      @backend.load_entities_for_component_class(component_class).map {|id| self[id] }
+      @backend.load_entities_for_component_class(component_class)
     end
 
     def generate_id

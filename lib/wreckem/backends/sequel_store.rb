@@ -128,7 +128,7 @@ module Wreckem
     def load_entities_for_component_class(component_class)
       cname = component_class.name
       @components.where(:name => cname).inject([]) do |result, row|
-        Entity.new_protected(row[:eid])
+        result << Entity.new_protected(row[:eid])
       end
     end
 

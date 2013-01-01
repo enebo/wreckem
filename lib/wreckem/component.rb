@@ -99,9 +99,8 @@ module Wreckem
     #
     def self.intersects(*cclasses)
       cclasses = [self] + cclasses
-      manager.entities_for_component_class(self).each do |entity_id|
-        entity = manager[entity_id]
-        hash = manager.components_of_entity(entity_id).inject({}) do |s, c|
+      manager.entities_for_component_class(self).each do |entity|
+        hash = manager.components_of_entity(entity).inject({}) do |s, c|
           s[c.class] = c if cclasses.include? c.class
           s
         end

@@ -94,21 +94,26 @@ module Wreckem
     # Load component from class
     #
     def load_components_from_class(component_class, &block)
-      query = @components.where(:name => component_class.name)
+      query = @components.where(:name => component_class.name).map do |row|
+        instantiate_component(row)
+      end
 
-      return query.enum_for(:each) if !block_given?
-
-      query.each { |row| yield }
+      return query.enum_for(:each) if !block_given? 
+        
+      query.each { |component| yield component }
     end
 
     ##
     # Load all components for the specified entity id.
     #
-    def load_components_of_entity(entity_id)
-      row = @components.where(:eid => entity_id).inject([]) do |result, row|
-        component_class = name_to_class(row[:name])
-        result << instantiate_component(component_class, row)
+    def load_components_of_entity(entity_id, &block)
+      query = @components.where(:eid => entity_id).map do |row|
+        instantiate_component(row)
       end
+
+      return query.enum_for(:each) if !block_given? 
+        
+      query.each { |component| yield component }
     end
 
     ##
@@ -118,22 +123,14 @@ module Wreckem
       Entity.new_protected(entity_id)  # FIXME: should we really query on this?
     end
 
-    ##
-    # Load entities of an particular component
-    def load_entities_of_component(component_id)
-      @components.where(:id => component_id).inject([]) do |result, row|
+    def load_entities_for_component_class(component_class, &block)
+      query = @components.where(:name => component_class.name).map do |row|
         Entity.new_protected(row[:eid])
       end
-    end
 
-    def load_entities_for_component_class(component_class, &block)
-      query = @components.where(:name => component_class.name)
-
-      if block_given?
-        query.each { |row| yield }
-      else
-        query.map { |row| Entity.new_protected(row[:eid]) }.enum_for(:each)
-      end
+      return query.enum_for(:each) if !block_given? 
+        
+      query.each { |entity| yield entity }
     end
 
     ##
@@ -167,7 +164,8 @@ module Wreckem
     end
     private :name_to_class
 
-    def instantiate_component(component_class, row)
+    def instantiate_component(row)
+      component_class = name_to_class(row[:name])
       component = if row[:type] == ASPECT
                     component_class.new
                   else

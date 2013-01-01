@@ -25,7 +25,10 @@ describe Wreckem::Component do
     Wreckem::Entity.is! { |e| e.has Position.new(5) }
   
     count = 0
-    Position.all { |c| count += 1 }
+    Position.all { |c|
+      count += 1
+      c.class.should == Position
+    }
     count.should == 2
   end
 
@@ -65,7 +68,10 @@ describe Wreckem::Component do
 
     entities = Shape.entities
     count = 0
-    entities.each { |e| count += 1 }
+    entities.each do |e|
+      count += 1
+      e.class.should == Wreckem::Entity
+    end
     count.should == 2
   end
 

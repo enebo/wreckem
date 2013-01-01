@@ -63,15 +63,22 @@ module Wreckem
       end
     end
 
+    ##
+    # Is the component class associated with this entity?
     def is?(component_class)
       !!component_class.one(self)
     end
     alias_method :has?, :is?
 
+    ##
+    # Give 0 or more resulting components of the supplied component class
+    # for this entity.
     def many(component_class)
       component_class.many(self)
     end
 
+    ##
+    # Give 0 or one component of the supplied component class for this entity.
     def one(component_class)
       component_class.one(self)
     end

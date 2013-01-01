@@ -82,15 +82,6 @@ module Wreckem
     end
 
     ##
-    # Return all entities
-    #
-    def entities
-      @components.where(:type => ENTITY).inject([]) do |result, row|
-        result << Wreckem::Entity.new_protected(row[:id])
-      end
-    end
-
-    ##
     # Generate a new id.  Note this is not part of transaction because worst
     # case we give out some unused ids
     def generate_id
@@ -151,23 +142,13 @@ module Wreckem
     def save
     end
 
-    ##
-    # Store new entity along with its aliases.  It will return the entity
-    # that was submitted.
-    #
-    def update_entity(entity, aliases)
-      @components.insert(:id => entity.id, :eid => -1, :name => "Entity", 
-                         :type => ENTITY)
-      entity
-    end
-
     def update_component(component)
       db_type = TYPE_MAP[component.type]
       row_data = {id: component.id, eid: component.eid, 
         name: component.class.name, type: db_type}
       value_column = COLUMN_MAP[db_type]
       row_data[value_column] = component.value if value_column
-      @components.update row_data
+      @components.where(id: component.id).update(row_data)
       component
     end
 

@@ -17,7 +17,16 @@ describe Wreckem::Component do
     Wreckem::Entity.is! { |e| e.has Position.new(4) }
     Wreckem::Entity.is! { |e| e.has Position.new(5) }
   
-    Position.all.size.should == 2
+    Position.all.to_a.size.should == 2
+  end
+
+  it "should find all component instances using 'all' with block" do
+    Wreckem::Entity.is! { |e| e.has Position.new(4) }
+    Wreckem::Entity.is! { |e| e.has Position.new(5) }
+  
+    count = 0
+    Position.all { |c| count += 1 }
+    count.should == 2
   end
 
   it "should find entities with 'intersects'" do

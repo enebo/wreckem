@@ -60,8 +60,8 @@ module Wreckem
     #
     #   PlayerInput.all
     #
-    def self.all
-      manager.components_for_class(self)
+    def self.all(&block)
+      manager.components_for_class(self, &block)
     end
 
     ##

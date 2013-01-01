@@ -93,11 +93,12 @@ module Wreckem
     ##
     # Load component from class
     #
-    def load_components_from_class(component_class)
-      cname = component_class.name
-      @components.where(:name => cname).inject([]) do |result, row|
-        result << instantiate_component(component_class, row)
-      end
+    def load_components_from_class(component_class, &block)
+      query = @components.where(:name => component_class.name)
+
+      return query.enum_for(:each) if !block_given?
+
+      query.each { |row| yield }
     end
 
     ##

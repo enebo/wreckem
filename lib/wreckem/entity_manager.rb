@@ -16,8 +16,8 @@ module Wreckem
       @backend = backend
     end
 
-    def components_for_class(component_class)
-      @backend.load_components_from_class(component_class)
+    def components_for_class(component_class, &block)
+      @backend.load_components_from_class(component_class, &block)
     end
 
     def components_of_entity(entity)
@@ -47,10 +47,6 @@ module Wreckem
 
     def destroy
       @backend.destroy
-    end
-
-    def entities_for_component(component)
-      @backend.load_entities_of_component(id_for(component))
     end
 
     def entities_for_component_class(component_class, &block)

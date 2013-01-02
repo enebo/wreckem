@@ -49,7 +49,7 @@ module Wreckem
       @backend.destroy
     end
 
-    def entities_for_component_class(component_class, &block)
+    def load_entities_for_component_class(component_class, &block)
       @backend.load_entities_for_component_class(component_class, &block)
     end
 

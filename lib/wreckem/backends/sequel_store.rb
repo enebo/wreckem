@@ -8,6 +8,7 @@ module Wreckem
     INT = 4
     FLOAT = 5
     BOOL = 6
+    TEXT = 7
 
     TYPE_MAP = {
       :aspect => ASPECT,
@@ -16,6 +17,7 @@ module Wreckem
       :int => INT,
       :float => FLOAT,
       :bool => BOOL,
+      :text => TEXT
     }
 
     COLUMN_MAP = {
@@ -25,6 +27,7 @@ module Wreckem
       INT => :int_data,
       FLOAT => :float_data,
       BOOL => :bool_data,
+      TEXT => :text_data
     }
 
     def initialize()

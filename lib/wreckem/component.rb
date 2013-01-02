@@ -79,7 +79,7 @@ module Wreckem
     #   Player.entities # A systems wants to act on all player entities
     #
     def self.entities(&block)
-      manager.entities_for_component_class(self, &block)
+      manager.load_entities_for_component_class(self, &block)
     end
 
     # FIXME: The DB should be doing this intersection logic
@@ -103,7 +103,7 @@ module Wreckem
     #
     def self.intersects(*cclasses)
       cclasses = [self] + cclasses
-      manager.entities_for_component_class(self) do |entity|
+      manager.load_entities_for_component_class(self) do |entity|
         hash = manager.components_of_entity(entity).inject({}) do |s, c|
           s[c.class] = c if cclasses.include? c.class
           s
@@ -139,7 +139,7 @@ module Wreckem
     end
 
     def self.define_as_text
-      define_as_test(:text)
+      define_as_type(:text)
     end
 
     def self.define_as_type(data_type)

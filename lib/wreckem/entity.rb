@@ -56,8 +56,8 @@ module Wreckem
 
     ##
     # For boolean components as a nicer looking way of specifying them
-    def is(*cclasses)
-      cclasses.each do |component_class|
+    def is(*component_classes)
+      component_classes.each do |component_class|
         raise ArgumentError unless component_class
         add(component_class.new)
       end

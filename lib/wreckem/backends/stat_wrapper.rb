@@ -5,15 +5,9 @@ module Wreckem
       @counts, @times = {}, {}
     end
 
-    def create_entity(entity, aliases)
-      time_and_count(:create_entity) do
-        @backend.create_entity(entity, aliases)
-      end
-    end
-
-    def delete_entity(id)
+    def delete_entity(entity)
       time_and_count(:delete_entity) do
-        @backend.delete_entity(id)
+        @backend.delete_entity(entity)
       end
     end
 
@@ -23,9 +17,9 @@ module Wreckem
       end
     end
 
-    def entities
-      time_and_count(:entities) do
-        @backend.entities
+    def destroy
+      time_and_count(:destroy) do
+        @backend.destroy
       end
     end
 
@@ -35,33 +29,27 @@ module Wreckem
       end
     end
 
-    def load_components_from_class(component_class)
-      time_and_count(:load_components_from_class) do
-        @backend.load_components_from_class(component_class)
+    def insert_component(component)
+      time_and_count(:insert_component) do
+        @backend.insert_component(component)
       end
     end
 
-    def load_components_of_entity(entity_id)
+    def load_components_from_class(component_class, &block)
+      time_and_count(:load_components_from_class) do
+        @backend.load_components_from_class(component_class, &block)
+      end
+    end
+
+    def load_components_of_entity(entity_id, &block)
       time_and_count(:load_components_of_entity) do
-        @backend.load_components_of_entity(entity_id)
+        @backend.load_components_of_entity(entity_id, &block)
       end
     end
 
     def load_entity(entity_id)
       time_and_count(:load_entity) do
         @backend.load_entity(entity_id)
-      end
-    end
-
-    def load_entity_from_alias(a)
-      time_and_count(:load_entity_from_alias) do
-        @backend.load_entity_from_alias(a)
-      end
-    end
-
-    def load_entities_of_component(component_id)
-      time_and_count(:load_entities_of_component) do
-        @backend.load_entities_of_component(component_id)
       end
     end
 
@@ -79,15 +67,9 @@ module Wreckem
       @backend.save
     end
 
-    def store_entity(entity, aliases)
-      time_and_count(:store_entity) do
-        @backend.store_entity(entity, aliases)
-      end
-    end
-
-    def store_component(entity, component)
-      time_and_count(:store_component) do
-        @backend.store_component(entity, component)
+    def update_component(component)
+      time_and_count(:update_component) do
+        @backend.update_component(component)
       end
     end
 

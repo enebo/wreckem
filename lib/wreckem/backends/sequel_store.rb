@@ -58,17 +58,6 @@ module Wreckem
     end
 
     ##
-    # 
-    def insert_component(component)
-      db_type = TYPE_MAP[component.type]
-      row_data = {eid: component.eid, name: component.class.name, type: db_type}
-      value_column = COLUMN_MAP[db_type]
-      row_data[value_column] = component.value if value_column
-      new_id = @components.insert row_data
-      component.id = new_id
-    end
-
-    ##
     # Deletes the entity and any associated aliases.
     #
     def delete_entity(entity)
@@ -91,6 +80,17 @@ module Wreckem
       id = @ids.first[:count]
       @ids.where(:id => 0).update(:count => id + 1)
       id
+    end
+
+    ##
+    # 
+    def insert_component(component)
+      db_type = TYPE_MAP[component.type]
+      row_data = {eid: component.eid, name: component.class.name, type: db_type}
+      value_column = COLUMN_MAP[db_type]
+      row_data[value_column] = component.value if value_column
+      new_id = @components.insert row_data
+      component.id = new_id
     end
 
     ##

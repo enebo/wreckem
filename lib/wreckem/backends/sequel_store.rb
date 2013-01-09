@@ -32,9 +32,9 @@ module Wreckem
     }
 
 
-    def initialize(db_string = "jdbc:sqlite:db")
+    def initialize(db_string)
       @db = Sequel.connect(db_string)
-      # @db.logger = @@logger
+      @db.logger = @@logger
       @db.drop_table :sequence if @db.table_exists?(:sequence)
       @db.drop_table :components if @db.table_exists?(:components)
       unless @db.table_exists?(:sequence)
@@ -115,8 +115,8 @@ module Wreckem
     # Load component from classes
     #
     def load_components_from_classes(component_classes, &block)
-
-      joins, eqs, names, datas = [], [], [], []
+      where_hash = component_classes.pop if component_classes.last.class == Hash
+      joins, eqs, names, datas, wheres = [], [], [], [], []
 
       ## TODO - escape illegal characters
       component_classes.each_with_index do |c, i|
@@ -124,8 +124,19 @@ module Wreckem
         eqs << " components#{i}.eid = components#{ (i+1) == component_classes.size ? 0 : i+1}.eid "
         names << " components#{i}.name = '#{c.name}' "
         datas << " components#{i}.#{ COLUMN_MAP[TYPE_MAP[c.type]]} as #{c.name.gsub(':', '')}, components#{i}.id as #{c.name.gsub(':', '')}Id "
+        if where_hash and where_hash[c.name.to_sym]
+          vals = where_hash[c.name.to_sym]
+          multiple = vals.include?("or") ? vals.split(" or ") : vals.split(" and ")
+          multiple.each do |w|
+            column = w.include?('eid=') ? 'eid' : COLUMN_MAP[TYPE_MAP[c.type]]
+            wheres << " components#{i}.#{ column } #{'!' if w.include?('!')}= #{w.gsub('!', '').gsub('eid=', '')}"
+          end
+        end
       end
-      query_string = "select components0.eid, #{datas.join(",")} from components as components0 #{joins.join(" ")} on (#{eqs.join("and")} and #{names.join("and")});"
+      if not wheres.empty?
+        where_query = "WHERE #{wheres.join(" AND ")}"
+      end
+      query_string = "select components0.eid, #{datas.join(",")} from components as components0 #{joins.join(" ")} on (#{eqs.join("and")} and #{names.join("and")}) #{where_query};"
 
       query = @db[query_string].map do |row|
         instantiate_components_from_columns(row)

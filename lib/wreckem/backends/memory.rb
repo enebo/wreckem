@@ -222,3 +222,36 @@ module Wreckem
     end
   end
 end
+
+
+
+
+
+
+
+
+
+  # logic from old inersects method that didn't rely on SQL, just in case we need it
+
+      # # grab all entities for the main component class on which intersects was
+      # # first invoked. Find subsequent components specified that also refer to
+      # # these entities
+      # manager.load_entities_for_component_class(self) do |entity|
+
+      #   # create a hash with component class names as keys and the components
+      #   # themselves as values
+      #   hash = manager.components_of_entity(entity).inject({}) do |s, c|
+      #     s[c.class] = c if cclasses.include? c.class
+      #     s
+      #   end
+
+      #   # create an array the components on this entity whose class matches one
+      #   # of the components specified in the intersects argument
+      #   list = cclasses.map { |c| hash[c] }.compact
+
+      #   # Yield this entity's components to the block only if they match the
+      #   # number specified in the the main argument to intersects. In other words,
+      #   # if they lack a specified component, don't pass them back
+      #   yield list if list.size == cclasses.size
+
+      # end

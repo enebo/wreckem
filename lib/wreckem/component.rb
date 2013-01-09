@@ -3,7 +3,7 @@ module Wreckem
   # Component is the data holder for this EC framework.  This is probably
   # more heavy-weight than many EC frameworks by standing up an instance
   # around all data, but hell it is my first implementation and standing
-  # up an instance inherited from a common Component class allows for 
+  # up an instance inherited from a common Component class allows for
   # friendly API where I can ask components questions about the game
   # they live in.
   #
@@ -60,7 +60,7 @@ module Wreckem
     end
 
     ##
-    # All component instances for this Component type 
+    # All component instances for this Component type
     #
     # == Examples
     #
@@ -98,21 +98,21 @@ module Wreckem
     #     cli.delete  # Done executing command
     #  end
     #
-    #  In this example very few people are entering commands and they may be 
+    #  In this example very few people are entering commands and they may be
     #  many Dieties in the game.  Name is a very common component.
     #
+
+    #
+
+
     def self.intersects(*cclasses)
       cclasses = [self] + cclasses
-      manager.load_entities_for_component_class(self) do |entity|
-        hash = manager.components_of_entity(entity).inject({}) do |s, c|
-          s[c.class] = c if cclasses.include? c.class
-          s
+        # create a hash with component class names as keys and the components
+        # themselves as values
+        manager.components_for_classes(cclasses).each do |list|
+          yield list
         end
 
-        list = cclasses.map { |c| hash[c] }.compact
-
-        yield list if list.size == cclasses.size
-      end
     end
 
     ##
@@ -157,7 +157,7 @@ module Wreckem
             true
           end
         else
-          attr_accessor :value 
+          attr_accessor :value
 
           def initialize(value)
             super()
@@ -181,7 +181,7 @@ module Wreckem
           end
 
           ##
-          # Update this components value to the new value and have it 
+          # Update this components value to the new value and have it
           # persist this component.
           def update!(new_value)
             update(new_value)
@@ -213,7 +213,7 @@ module Wreckem
           # Special reference method for things to key off of.
           alias_method :ref, :value
         end
-
+        define_singleton_method(:type) {data_type}
         define_method(:type) { data_type }
       end
     end

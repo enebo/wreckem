@@ -20,6 +20,10 @@ module Wreckem
       @backend.load_components_from_class(component_class, &block)
     end
 
+    def components_for_classes(*component_classes, &block)
+      @backend.load_components_from_classes(*component_classes, &block)
+    end
+
     def components_of_entity(entity)
       @backend.load_components_of_entity(id_for(entity))
     end

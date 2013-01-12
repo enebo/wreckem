@@ -14,6 +14,7 @@ module Wreckem
         e.has Name.new(state_machine.name)
         state = generate_state(state_machine.start_state)
         e.has StateDestinationRef.new state
+        state_machine.components.each { |c| e.has c }
       end
     end
 
@@ -24,11 +25,12 @@ module Wreckem
       @states_visited[state] = Entity.is! do |e|
         e.is StateState
         e.has Name.new(state.name)
-        e.is Goal if state.goal?
+        e.is StateGoal if state.goal?
         state.transitions.each do |transition|
           trans = generate_transition(transition)
           e.has StateTransitionRef.new trans
         end
+        state.components.each { |c| e.has c }
       end
     end
 
@@ -42,6 +44,7 @@ module Wreckem
         e.has StateExpression.new(transition.expression_as_string)
         dest_state = generate_state(transition.destination)
         e.has StateDestinationRef.new dest_state
+        transition.components.each { |c| e.has c }
       end
     end
 

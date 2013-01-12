@@ -2,37 +2,84 @@ module Wreckem
   class StateMachineBuilder
     include Wreckem::StateMachineComponents
     def self.build(machine_def)
-      unless machine_def.is?(Machine)
-        raise ArgumentError.new "Not a state machine defintiion #{machine_def.as_string}" 
+      components = []
+      is_machine = false
+      start = name = nil
+      machine_def.each do |c|
+        case c
+        when Machine then
+          is_machine = true
+        when Name then
+          name = c
+        when StateDestinationRef then
+          start = c
+        else
+          components << c
+        end
       end
+      
+      raise ArgumentError.new "Not a state machine defintiion #{machine_def.as_string}" unless is_machine
+      raise ArgumentError.new "Improper state machine definition: missing name or start state" if !name || !start
 
-      name = machine_def.one(Name)
-      start = machine_def.one(StateDestinationRef)
-      start_state = build_state(start).to_entity
+      start_state = build_state(start.to_entity)
 
-      new(name, start_state)
+      Wreckem::StateMachine.new(name.value, start_state, name.id).tap do |sm|
+        sm.components.concat components
+      end
     end
 
     def self.build_state(state)
-      raise ArgumentError.new "Not a state entity" if !state.is? StateState
-
-      transitions = state.many(StateTransitionRef).inject([]) do |list, str|
-        list << build_transition(str.entity)
+      is_goal = is_state = false
+      name = nil
+      transitions = []
+      components = []
+      state.each do |c|
+        case c
+        when StateState then
+          is_state = true
+        when StateTransitionRef then
+          transitions << build_transition(c.to_entity)
+        when Name then
+          name = c
+        when StateGoal
+          is_goal = true
+        else
+          components << c
+        end
       end
 
-      Wreckem::State.new state.one(Name), transitions, state.is?(StateGoal)
+      raise ArgumentError.new "Not a state entity" unless is_state
+
+      Wreckem::State.new(name.value, transitions, is_goal, name.id).tap do |s|
+        s.components.concat components
+      end
     end
 
     def self.build_transition(transition)
-      unless state.is? StateTransition
-        raise ArgumentError.new "Not a state transition" 
+      is_transition = false
+      components = []
+      name = expression = destination = nil
+      transition.each do |c|
+        case c
+        when StateTransition then
+          is_transition = true
+        when Name then
+          name = c
+        when StateExpression then
+          expression = c.value
+        when StateDestinationRef then
+          destination = c.to_entity
+        else
+          components << c
+        end
       end
 
-      name = transition.one(Name).value
-      destination = transtion.one(StateDestinationRef).to_entity
-      expression = transition.one(StateExpression).value
+      raise ArgumentError.new "Not a state transition" unless is_transition
 
-      Wreck::Transition.generate(name, destination, expression)
+      Wreckem::Transition.generate(name.value, destination, expression, 
+                                   name.id).tap do |t|
+        t.components.concat components
+      end
     end
   end
 end

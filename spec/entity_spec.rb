@@ -71,6 +71,25 @@ describe Wreckem::Entity do
     entity.should == nil
   end
 
+  it "should access a component using 'one'" do
+    entity = Wreckem::Entity.is! do |e|
+      e.has Wound.new(5)
+    end
+
+    entity.one(Wound).value.should == 5
+  end
+
+  it "should access multiple one components using 'one'" do
+    entity = Wreckem::Entity.is! do |e|
+      e.is Container
+      e.has Wound.new(5)
+    end
+
+    wound, container = entity.one(Wound, Container)
+    wound.value.should == 5
+    container.class.should == Container
+  end
+
   it "should access all same-type components using 'many'" do
     entity = Wreckem::Entity.is! do |e|
       e.has Wound.new(5)

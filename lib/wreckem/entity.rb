@@ -79,8 +79,12 @@ module Wreckem
 
     ##
     # Give 0 or one component of the supplied component class for this entity.
-    def one(component_class)
-      component_class.one(self)
+    def one(*component_classes)
+      if component_classes.length == 1
+        component_classes[0].one(self)
+      else
+        manager.components_for_classes(component_classes).each { |e| return e if e[0].eid == id }
+      end
     end
 
     def each

@@ -34,7 +34,7 @@ module Wreckem
 
     def initialize(db_string)
       @db = Sequel.connect(db_string)
-      @db.logger = @@logger
+      # @db.logger = @@logger
       @db.drop_table :sequence if @db.table_exists?(:sequence)
       @db.drop_table :components if @db.table_exists?(:components)
       unless @db.table_exists?(:sequence)
@@ -123,13 +123,17 @@ module Wreckem
         joins << " INNER JOIN components as components#{i} " if i != 0
         eqs << " components#{i}.eid = components#{ (i+1) == component_classes.size ? 0 : i+1}.eid "
         names << " components#{i}.name = '#{c.name}' "
-        datas << " components#{i}.#{ COLUMN_MAP[TYPE_MAP[c.type]]} as #{c.name.gsub(':', '')}, components#{i}.id as #{c.name.gsub(':', '')}Id "
-        if where_hash and where_hash[c.name.to_sym]
-          vals = where_hash[c.name.to_sym]
-          multiple = vals.include?("or") ? vals.split(" or ") : vals.split(" and ")
-          multiple.each do |w|
-            column = w.include?('eid=') ? 'eid' : COLUMN_MAP[TYPE_MAP[c.type]]
-            wheres << " components#{i}.#{ column } #{'!' if w.include?('!')}= #{w.gsub('!', '').gsub('eid=', '')}"
+        datas << " components#{i}.#{ COLUMN_MAP[TYPE_MAP[c.type]]} as #{c.name.gsub(':', '')}Component, components#{i}.id as #{c.name.gsub(':', '')}Id "
+        if where_hash and conds = (where_hash[c.name.to_sym] or conds = where_hash[c.name.downcase.to_sym])
+          if conds[:value]
+            val = conds[:value].class == String ? "'#{conds[:value]}'" : conds[:value].to_s
+            column = COLUMN_MAP[TYPE_MAP[c.type]]
+            wheres << " components#{i}.#{ column } #{'!' if val.include?('!')}= #{val.gsub('!', '')} "
+          end
+          if conds[:eid]
+            val = conds[:eid]
+            column = 'eid'
+            wheres << " components#{i}.#{ column } #{'!' if val.include?('!')}= #{val.gsub('!', '')} "
           end
         end
       end
@@ -213,15 +217,14 @@ module Wreckem
     def instantiate_components_from_columns(row)
       keys = row.keys
       eid = row[keys.shift]
-      component_classes = keys.each_with_index.map{|c, i| name_to_class(c.to_s) if i.even?}.compact!
-
+      component_classes = keys.each_with_index.map{|c, i| name_to_class(c.to_s.gsub("Component",'')) if i.even?}.compact!
       components = component_classes.map do |component_class|
-
-        component = component_class.type == :aspect ? component_class.new : component_class.new(row[component_class.name.to_sym])
+        component = component_class.type == :aspect ? component_class.new : component_class.new(row["#{component_class.name}Component".to_sym])
         component.id = row[:"#{component_class.name}Id"].to_i
         component.eid = eid
         component
       end
+      return components
     end
     private :instantiate_components_from_columns
 

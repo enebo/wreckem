@@ -32,9 +32,9 @@ module Wreckem
     }
 
 
-    def initialize(db_string)
+    def initialize(db_string="jdbc:sqlite:db")
       @db = Sequel.connect(db_string)
-      # @db.logger = @@logger
+#      @db.logger = @@logger
       @db.drop_table :sequence if @db.table_exists?(:sequence)
       @db.drop_table :components if @db.table_exists?(:components)
       unless @db.table_exists?(:sequence)

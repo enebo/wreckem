@@ -117,6 +117,11 @@ describe Wreckem::Component do
     fun.same?(entity.id).should == true
   end
 
+  it "should allow same? to nil" do
+    position = Position.new(1)
+    position.same?(nil).should == false
+  end
+
   it "should allow references to call 'to_entity'" do
     entity = Wreckem::Entity.is! { |e| e.has Position.new(4) }
     entity2 = Wreckem::Entity.is! do |e|

@@ -126,6 +126,10 @@ module Wreckem
       define_as_type(:bool)
     end
 
+    def self.define_as_float
+      define_as_type(:float)
+    end
+
     def self.define_as_int
       define_as_type(:int)
     end
@@ -195,7 +199,7 @@ module Wreckem
 
         def same?(other)
           if other.kind_of?(Wreckem::Component)
-            self.value == other.value
+            other && self.value == other.value
           else
             value == other
           end

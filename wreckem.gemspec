@@ -16,5 +16,8 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
-  s.has_rdoc      = true
+
+  # entity_manager.rb requires the Sequel backend unconditionally, so this is a
+  # hard runtime dependency rather than an optional one.
+  s.add_dependency 'sequel', '~> 5.106'
 end
